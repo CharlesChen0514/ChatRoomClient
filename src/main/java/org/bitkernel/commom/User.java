@@ -1,14 +1,12 @@
 package org.bitkernel.commom;
 
 import com.sun.istack.internal.NotNull;
-import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
 import static org.bitkernel.udp.UdpData.sym;
 
-@AllArgsConstructor
 @NoArgsConstructor
 @Slf4j
 public class User {
@@ -19,21 +17,34 @@ public class User {
     @Getter
     private int udpPort;
     @Getter
-    private int tcpListPort;
-    private final static int FIELD_LEN = 4;
+    private int tcpListenPort;
+
+    public User(@NotNull String name, @NotNull String ip,
+                int udpPort, int tcpListenPort) {
+        this.name = name;
+        this.ip = ip;
+        this.udpPort = udpPort;
+        this.tcpListenPort = tcpListenPort;
+    }
 
     @NotNull
     public String toString() {
         return name + sym
                 + ip + sym
                 + udpPort + sym
-                + tcpListPort;
+                + tcpListenPort;
+    }
+
+    @NotNull
+    public String detailed() {
+        return String.format("name: %s, ip: %s, udp port: %s, tcp listen port: %s",
+                name, ip, udpPort, tcpListenPort);
     }
 
     @NotNull
     public static User parse(@NotNull String str) {
         String[] split = str.split(sym);
-        if (split.length != FIELD_LEN) {
+        if (split.length != 4) {
             logger.error("Error user string format: {}", str);
             return new User();
         }
