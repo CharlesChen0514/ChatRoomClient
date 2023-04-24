@@ -15,7 +15,7 @@ import static org.bitkernel.commom.StringUtil.joinDelimiter;
 public enum CmdType {
     INFO("-i", "your user information", "-i"),
     FRIENDS("-fs", "friend list", "-fs"),
-    CONNECT("-c", "connect user", "-c@{port}, -c@local@{port}, -c@{ip}@{port}"),
+    CONNECT("-c", "connect user", "-c@{tcpPort}, -c@local@{tcpPort}, -c@{ip}@{tcpPort}"),
     DISCONNECT("-dc", "disconnect user", "-dc@{name}"),
     PRIVATE_MSG("-pm", "private message", "-pm@{name}@{msg}"),
     FILE_TRANSFER("-ft", "file transfer", "-ft@{name}@{file}"),

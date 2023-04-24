@@ -51,7 +51,7 @@ public class Client {
 
     private void login() {
         logger.debug("Start input user message");
-        Printer.display("Welcome to chat room, please login");
+        Printer.displayLn("Welcome to chat room, please login");
         Printer.display("Input username: ");
         String name = in.next();
 //        String name = "chen";
