@@ -4,6 +4,7 @@ import com.sun.istack.internal.NotNull;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
+import org.bitkernel.commom.Printer;
 import org.bitkernel.commom.User;
 import org.springframework.util.StopWatch;
 
@@ -112,6 +113,9 @@ class DownLoadFile implements Runnable {
     private String fileName;
     private long fileSize;
     private String outputPath;
+    /** 500 MB */
+    private static final long MAX_FILE_SIZE = 500 * 1024 * 1024;
+    private boolean flag = true;
 
     public DownLoadFile(@NotNull TcpConn conn,
                         @NotNull String from) {
@@ -135,6 +139,15 @@ class DownLoadFile implements Runnable {
         try {
             fileName = in.readUTF();
             fileSize = Long.parseLong(in.readUTF());
+            if (fileSize > MAX_FILE_SIZE) {
+                Printer.displayLn("%s transferred a file larger than 500 MB, " +
+                        "refuse to accept", from);
+                out.writeUTF("No");
+                flag = false;
+                return;
+            } else {
+                out.writeUTF("Yes");
+            }
             outputPath = dir + fileName;
             FileOutputStream fos = new FileOutputStream(outputPath);
             byte[] buf = new byte[READ_BUFFER_SIZE];
@@ -163,6 +176,9 @@ class DownLoadFile implements Runnable {
     }
 
     private void outputInfo() {
+        if (!flag) {
+            return;
+        }
         long ms = watch.getTotalTimeMillis();
         System.out.printf("Successfully accept file from [%s]%n", from);
         System.out.printf("File name [%s], file size [%s bytes], store in [%s]%n",
@@ -181,6 +197,7 @@ class UpLoadFile implements Runnable {
     private final String filePath;
     private File file;
     private TcpConn conn;
+    private boolean flag = true;
 
     public UpLoadFile(@NotNull TcpConn conn, @NotNull User toUser,
                       @NotNull String filePath) {
@@ -207,6 +224,13 @@ class UpLoadFile implements Runnable {
             out.writeUTF(String.valueOf(file.length()));
             out.flush();
 
+            String rsp = conn.getDin().readUTF();
+            if (rsp.equals("No")) {
+                Printer.displayLn("Receiver refuses to accept file");
+                flag = false;
+                return;
+            }
+
             byte[] buf = new byte[WRITE_BUFFER_SIZE];
             while (true) {
                 int read = fis.read(buf);
@@ -232,6 +256,9 @@ class UpLoadFile implements Runnable {
     }
 
     private void outputInfo() {
+        if (!flag) {
+            return;
+        }
         long ms = watch.getTotalTimeMillis();
         System.out.printf("Successfully transfer file to [%s]%n", toUser.getName());
         System.out.printf("File name [%s], file size [%s bytes]%n", file.getName(), file.length());
