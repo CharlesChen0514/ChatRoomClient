@@ -16,13 +16,13 @@ import java.util.Set;
 import static org.bitkernel.client.Client.*;
 import static org.bitkernel.commom.CmdType.menu;
 import static org.bitkernel.commom.Data.parse;
-import static org.bitkernel.commom.FileUtil.getAllFileNameString;
+import static org.bitkernel.commom.FileUtil.*;
 import static org.bitkernel.commom.StringUtil.getSocketAddrStr;
 import static org.bitkernel.commom.StringUtil.isNumeric;
 import static org.bitkernel.tcp.TcpListener.*;
 
 @Slf4j
-public class Handler implements Runnable {
+public class Handler {
     @Getter
     private final Udp udp;
 
@@ -82,6 +82,7 @@ public class Handler implements Runnable {
                 pmReq(data);
                 break;
             case FILE_TRANSFER:
+                fileTransferReq(data);
                 break;
             case ACCEPTED_FILES:
                 Printer.displayLn(getAllFileNameString(dir));
@@ -97,10 +98,38 @@ public class Handler implements Runnable {
         }
     }
 
+    private void fileTransferReq(@NotNull Data data) {
+        String from = data.getFrom();
+        String to = data.getTo();
+        if (from.equals(to)) {
+            Printer.displayLn("Cannot transfer file to yourself, please re-entered");
+            return;
+        }
+        if (!isFriend(to)) {
+            Printer.displayLn("%s is not your friend", to);
+            return;
+        }
+        String filePath = data.getMsg();
+        if (!exist(filePath) && !existInFolder(dir, filePath)) {
+            Printer.displayLn("Invalid file format %s, try again%n", filePath);
+            return;
+        }
+
+        try {
+            User toUser = userMap.get(to);
+            TcpConn conn = new TcpConn(toUser.getIp(), toUser.getTcpListenPort());
+            conn.getDout().writeUTF(data.toDataString());
+            conn.getDout().flush();
+            conn.pushFile(toUser, data.getMsg());
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
     private void pmReq(@NotNull Data data) {
         String to = data.getTo();
         if (!isFriend(to)) {
-            Printer.displayLn(String.format("%s is not your friend", to));
+            Printer.displayLn("%s is not your friend", to);
             return;
         }
         User toUser = userMap.get(to);
@@ -163,10 +192,5 @@ public class Handler implements Runnable {
             logger.error(error);
             Printer.displayLn(error);
         }
-    }
-
-    @Override
-    public void run() {
-
     }
 }

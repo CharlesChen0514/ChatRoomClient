@@ -67,6 +67,7 @@ public class TcpListener implements Runnable {
                         newConnection(conn);
                         break;
                     case FILE_TRANSFER:
+                        conn.acceptFile(data.getFrom());
                         break;
                     default:
                         logger.error("Error command format: {}", dataStr);
