@@ -107,7 +107,7 @@ class DownLoadFile implements Runnable {
     private final StopWatch watch = new StopWatch();
     private String startTime;
     private String endTime;
-    private final DataInputStream din;
+    private final TcpConn conn;
     private static final int READ_BUFFER_SIZE = 1024;
     private String fileName;
     private long fileSize;
@@ -116,7 +116,7 @@ class DownLoadFile implements Runnable {
     public DownLoadFile(@NotNull TcpConn conn,
                         @NotNull String from) {
         this.from = from;
-        din = conn.getDin();
+        this.conn = conn;
     }
 
     @Override
@@ -129,21 +129,30 @@ class DownLoadFile implements Runnable {
         logger.debug("Start accept file");
         startTime = getTime();
         watch.start();
+        DataOutputStream out = conn.getDout();
+        DataInputStream in = conn.getDin();
 
         try {
-            fileName = din.readUTF();
-            fileSize = Long.parseLong(din.readUTF());
+            fileName = in.readUTF();
+            fileSize = Long.parseLong(in.readUTF());
             outputPath = dir + fileName;
             FileOutputStream fos = new FileOutputStream(outputPath);
             byte[] buf = new byte[READ_BUFFER_SIZE];
 
             int length;
-            while ((length = din.read(buf)) != -1) {
+            int c = 0;
+            while ((length = in.read(buf)) != -1) {
+                c += length;
                 fos.write(buf, 0, length);
+                if (c == fileSize) {
+                    break;
+                }
             }
 
             fos.flush();
             fos.close();
+            out.writeUTF("Done");
+            out.flush();
         } catch (IOException e) {
             logger.error(e.getMessage());
         }
@@ -158,7 +167,7 @@ class DownLoadFile implements Runnable {
         System.out.printf("Successfully accept file from [%s]%n", from);
         System.out.printf("File name [%s], file size [%s bytes], store in [%s]%n",
                 fileName, fileSize, outputPath);
-        System.out.printf("Start time [%s], end time [%s], total time [%d]%n", startTime, endTime, ms);
+        System.out.printf("Start time [%s], end time [%s], total time [%d ms]%n", startTime, endTime, ms);
     }
 }
 
@@ -170,7 +179,6 @@ class UpLoadFile implements Runnable {
     private static final int WRITE_BUFFER_SIZE = 1024;
     private final User toUser;
     private final String filePath;
-    private final DataOutputStream ps;
     private File file;
     private TcpConn conn;
 
@@ -179,7 +187,6 @@ class UpLoadFile implements Runnable {
         this.toUser = toUser;
         this.filePath = filePath;
         file = new File(filePath);
-        ps = conn.getDout();
         this.conn = conn;
     }
 
@@ -193,12 +200,12 @@ class UpLoadFile implements Runnable {
         logger.debug("Start push file: {}", filePath);
         startTime = getTime();
         watch.start();
-
+        DataOutputStream out = conn.getDout();
         try {
             DataInputStream fis = new DataInputStream(new BufferedInputStream(Files.newInputStream(Paths.get(filePath))));
-            ps.writeUTF(file.getName());
-            ps.writeUTF(String.valueOf(file.length()));
-            ps.flush();
+            out.writeUTF(file.getName());
+            out.writeUTF(String.valueOf(file.length()));
+            out.flush();
 
             byte[] buf = new byte[WRITE_BUFFER_SIZE];
             while (true) {
@@ -206,10 +213,13 @@ class UpLoadFile implements Runnable {
                 if (read == -1) {
                     break;
                 }
-                ps.write(buf, 0, read);
+                out.write(buf, 0, read);
             }
+            out.flush();
 
-            ps.flush();
+            // waiting for receiver reception done
+            conn.getDin().readUTF();
+            logger.debug("File receiver reception is complete");
             fis.close();
         } catch (IOException e) {
             throw new RuntimeException(e);
@@ -225,6 +235,6 @@ class UpLoadFile implements Runnable {
         long ms = watch.getTotalTimeMillis();
         System.out.printf("Successfully transfer file to [%s]%n", toUser.getName());
         System.out.printf("File name [%s], file size [%s bytes]%n", file.getName(), file.length());
-        System.out.printf("Start time [%s], end time [%s], total time [%d]%n", startTime, endTime, ms);
+        System.out.printf("Start time [%s], end time [%s], total time [%d ms]%n", startTime, endTime, ms);
     }
 }
