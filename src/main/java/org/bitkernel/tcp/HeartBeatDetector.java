@@ -18,7 +18,6 @@ public class HeartBeatDetector implements Runnable {
     public static final int WAIT_INTERVAL = 100;
     public static final String HEART_BEAT = "Heart beat\n";
     public static final String ALIVE = "Alive\n";
-    private int testTime = 0;
 
     private void cleanConnection() {
         Set<String> offlineUsers = new HashSet<>();
@@ -52,6 +51,7 @@ public class HeartBeatDetector implements Runnable {
     @Override
     public void run() {
         logger.debug("Heart beat detector started successfully");
+        int testTime = 0;
         while (isRunning) {
             try {
                 Thread.sleep(TIME_INTERVAL);

@@ -2,6 +2,7 @@ package org.bitkernel.tcp;
 
 import com.sun.istack.internal.NotNull;
 import lombok.extern.slf4j.Slf4j;
+import org.bitkernel.commom.Data;
 import org.bitkernel.commom.Printer;
 import org.bitkernel.commom.User;
 
@@ -42,19 +43,48 @@ public class TcpListener implements Runnable {
             while (isRunning) {
                 Socket socket = serverSocket.accept();
                 TcpConn conn = new TcpConn(socket);
-                logger.debug("Start send user information");
-                conn.getDout().writeUTF(user.toString());
-                conn.getDout().flush();
-                logger.debug("Send your own information success");
-                String userString = conn.getDin().readUTF();
-                logger.debug("Receive friend information success");
-                add(userString, conn);
+                new Thread(new Process(conn)).start();
             }
             logger.debug("Tcp listener stop successfully");
             connMap.values().forEach(TcpConn::close);
         } catch (IOException e) {
             logger.error(e.getMessage());
         }
+    }
+
+    class Process implements Runnable {
+        private TcpConn conn;
+        public Process(@NotNull TcpConn conn) {
+            this.conn = conn;
+        }
+        @Override
+        public void run() {
+            try {
+                String dataStr = conn.getDin().readUTF();
+                Data data = Data.parse(dataStr);
+                switch (data.getCmdType()) {
+                    case CONNECT:
+                        newConnection(conn);
+                        break;
+                    case FILE_TRANSFER:
+                        break;
+                    default:
+                        logger.error("Error command format: {}", dataStr);
+                }
+            } catch (IOException e) {
+                logger.error(e.getMessage());
+            }
+        }
+    }
+
+    private void newConnection(@NotNull TcpConn conn) throws IOException {
+        logger.debug("Start send user information");
+        conn.getDout().writeUTF(user.toString());
+        conn.getDout().flush();
+        logger.debug("Send your own information success");
+        String userString = conn.getDin().readUTF();
+        logger.debug("Receive friend information success");
+        add(userString, conn);
     }
 
     public static void add(@NotNull String userString,

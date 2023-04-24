@@ -150,6 +150,7 @@ public class Handler implements Runnable {
 
         try {
             TcpConn conn = new TcpConn(ip, port);
+            conn.getDout().writeUTF(data.toDataString());
             logger.debug("Start send user information");
             conn.getDout().writeUTF(user.toString());
             conn.getDout().flush();
