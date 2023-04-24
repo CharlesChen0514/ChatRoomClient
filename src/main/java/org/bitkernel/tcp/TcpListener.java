@@ -9,6 +9,7 @@ import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
 import static org.bitkernel.client.Client.isRunning;
@@ -51,6 +52,44 @@ public class TcpListener implements Runnable {
         connMap.put(from.getName(), conn);
         userMap.put(from.getName(), from);
         socAddrMap.put(from.getTcpSocketAddrStr(), from);
-        Printer.display("Connected to: " + from.getName());
+        Printer.display("Connected to: " + user.detailed());
+    }
+
+    @NotNull
+    public static String getFriendString() {
+        Set<String> fs = getFriends();
+        if (fs.isEmpty()) {
+            return "You have no friends yet";
+        }
+        StringBuilder sb = new StringBuilder();
+        sb.append("Your friends: ");
+        fs.forEach(f -> sb.append(f).append(", "));
+        sb.deleteCharAt(sb.length() - 1);
+        sb.deleteCharAt(sb.length() - 1);
+        return sb.toString();
+    }
+
+    @NotNull
+    public static Set<String> getFriends() {
+        return userMap.keySet();
+    }
+
+    /**
+     * @param str user name or tcp socket address
+     */
+    public static boolean isFriend(@NotNull String str) {
+        return userMap.containsKey(str) || socAddrMap.containsKey(str);
+    }
+
+    public static boolean remove(@NotNull String name) {
+        if (!isFriend(name)) {
+            return false;
+        }
+        User u = userMap.get(name);
+        socAddrMap.remove(u.getTcpSocketAddrStr());
+        connMap.get(name).close();
+        connMap.remove(name);
+        userMap.remove(name);
+        return true;
     }
 }

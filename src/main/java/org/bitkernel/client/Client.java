@@ -31,7 +31,7 @@ public class Client {
     public static final String localHost;
     public static boolean isRunning = true;
     public static User user;
-    private static String dir;
+    public static String dir;
     private Handler handler;
 
     static {
@@ -52,22 +52,22 @@ public class Client {
 
     private void login() {
         logger.debug("Start input user message");
-        System.out.println("Welcome to chat room, please login");
-        System.out.print("Input username: ");
+        Printer.display("Welcome to chat room, please login");
+        Printer.display("Input username: ");
         String name = in.next();
 //        String name = "chen";
 
         while (true) {
             // Ip defaults to local host
-            System.out.print("UDP port: ");
+            Printer.display("Input UDP port: ");
             int udpPort = in.nextInt();
 //            int udpPort = 9996;
-            System.out.print("Tcp listen port: ");
+            Printer.display("Input Tcp listen port: ");
             int listenerPort = in.nextInt();
 //            int listenerPort = 9997;
 
             if (!Udp.checkPort(udpPort) || !TcpConn.checkPort(listenerPort)) {
-                System.out.println("Input port unavailable, please re-entered");
+                Printer.displayLn("Input port unavailable, please re-entered");
                 continue;
             }
             user = new User(name, localHost, udpPort, listenerPort);
@@ -75,12 +75,12 @@ public class Client {
             dir = System.getProperty("user.dir") + File.separator + "file" +
                     File.separator + name + File.separator;
             if (createFolder(dir)) {
-                System.out.printf("Create user folder %s successfully.%n", dir);
+                Printer.displayLn("Create user folder %s successfully.", dir);
             } else {
-                System.out.printf("Create user folder %s failed.%n", dir);
+                Printer.displayLn("Create user folder %s failed.", dir);
             }
             logger.debug("Create user: [{}].", user.detailed());
-            System.out.printf("Create user: [%s].%n", user.detailed());
+            Printer.displayLn("Create user: [%s].", user.detailed());
             break;
         }
         logger.debug("End input user message");
@@ -95,78 +95,12 @@ public class Client {
             String dataStr = user.getName() + sym + cmdLine;
             String fDataStr = formalize(dataStr);
             if (!check(fDataStr)) {
-                System.out.println("Command error, please re-entered");
+                Printer.display("Command error, please re-entered");
                 continue;
             }
-            request(fDataStr);
+            handler.request(fDataStr);
         }
         logger.info("Exit chat menu");
-    }
-
-    private void request(@NotNull String fDataStr) {
-        Data data = parse(fDataStr);
-        logger.debug("Client make request: {}", data);
-        switch (data.getCmdType()) {
-            case INFO:
-                Printer.display(user.detailed());
-                break;
-            case CONNECT:
-                connectReq(data);
-                break;
-            case FRIENDS:
-                Printer.display(handler.getFriendString());
-                break;
-            case PRIVATE_MSG:
-                break;
-            case FILE_TRANSFER:
-                break;
-            case ACCEPTED_FILES:
-                Printer.display(getAllFileNameString(dir));
-                break;
-            case HELP:
-                menu.forEach(System.out::println);
-                break;
-            case EXIT:
-                break;
-            default:
-                System.out.println("Invalid selection, please re-enter");
-        }
-    }
-
-    private void connectReq(@NotNull Data data) {
-        String ip;
-        int port;
-        if (isNumeric(data.getTo())) {
-            ip = localHost;
-            port = Integer.parseInt(data.getTo());
-        } else {
-            if (data.getTo().equals("local")) {
-                ip = localHost;
-            } else {
-                ip = data.getTo();
-            }
-            port = Integer.parseInt(data.getMsg());
-        }
-        String socAddr = getSocketAddrStr(ip, port);
-
-
-        if (handler.isFriend(socAddr)) {
-            User u = socAddrMap.get(socAddr);
-            Printer.display(String.format("User %s %s is already is your friend",
-                    u.getName(), socAddr));
-            return;
-        }
-
-        try {
-            TcpConn conn = new TcpConn(ip, port);
-            conn.getPw().println(user);
-            String userString = conn.getBr().readLine();
-            add(userString, conn);
-        } catch (IOException e) {
-            String error = String.format("Connect to %s:%d failed", ip, port);
-            logger.error(error);
-            System.out.println(error);
-        }
     }
 
     private boolean check(@NotNull String dataStr) {
