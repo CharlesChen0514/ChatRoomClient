@@ -14,6 +14,8 @@ import java.io.File;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.util.Scanner;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 import static org.bitkernel.commom.CmdType.menu;
 import static org.bitkernel.commom.Data.*;
@@ -28,6 +30,7 @@ public class Client {
     public static boolean isRunning = true;
     public static User user;
     public static String dir;
+    public static ExecutorService executorService = Executors.newFixedThreadPool(4);
     private Handler handler;
 
     static {
@@ -106,8 +109,8 @@ public class Client {
     private void startLocalServer() {
         Thread t1 = new Thread(new TcpListener(user.getTcpListenPort()));
         Thread t2 = new Thread(new HeartBeatDetector());
-        t1.start();
-        t2.start();
+        executorService.execute(t1);
+        executorService.execute(t2);
         handler = new Handler();
     }
 }

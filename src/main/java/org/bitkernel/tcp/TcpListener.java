@@ -38,7 +38,7 @@ public class TcpListener implements Runnable {
     @Override
     public void run() {
         try (ServerSocket serverSocket = new ServerSocket(port)) {
-            logger.info("Tcp listener started successfully");
+            logger.debug("Tcp listener started successfully");
             while (isRunning) {
                 Socket socket = serverSocket.accept();
                 TcpConn conn = new TcpConn(socket);
@@ -50,7 +50,8 @@ public class TcpListener implements Runnable {
                 logger.debug("Receive friend information success");
                 add(userString, conn);
             }
-            logger.info("Tcp listener stop successfully");
+            logger.debug("Tcp listener stop successfully");
+            connMap.values().forEach(TcpConn::close);
         } catch (IOException e) {
             logger.error(e.getMessage());
         }

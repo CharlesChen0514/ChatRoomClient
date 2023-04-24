@@ -85,10 +85,18 @@ public class Handler implements Runnable {
                 menu.forEach(System.out::println);
                 break;
             case EXIT:
+                exit();
                 break;
             default:
                 Printer.displayLn("Invalid selection, please re-enter");
         }
+    }
+
+    private void exit() {
+        isRunning = false;
+        executorService.shutdown();
+        Printer.displayLn("Goodbye %s ~~~", user.getName());
+        System.exit(-1);
     }
 
     private void disconnectReq(@NotNull Data data) {

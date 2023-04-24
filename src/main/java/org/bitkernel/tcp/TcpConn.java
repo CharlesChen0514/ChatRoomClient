@@ -6,12 +6,14 @@ import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 import org.bitkernel.commom.User;
 
-import java.io.*;
+import java.io.DataInputStream;
+import java.io.DataOutputStream;
+import java.io.FileOutputStream;
+import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.net.Socket;
 
 import static org.bitkernel.client.Client.isRunning;
-import static org.bitkernel.client.Client.user;
 import static org.bitkernel.tcp.HeartBeatDetector.ALIVE;
 import static org.bitkernel.tcp.HeartBeatDetector.HEART_BEAT;
 
@@ -53,9 +55,9 @@ public class TcpConn {
 
     public void close() {
         try {
-            socket.close();
-            dout.close();
             din.close();
+            dout.close();
+            socket.close();
         } catch (IOException e) {
             logger.error("Close resource error");
         }
@@ -82,7 +84,7 @@ public class TcpConn {
                     break;
                 }
             }
-            logger.debug("Heart beat to [{}] thread ended successfully", user.getName());
+            logger.debug("Heart beat to [{}] thread ended successfully", to.getName());
         }
     }
 }
@@ -91,6 +93,7 @@ class DownLoader {
     private Socket socket;
     private DataInputStream is;
     private FileOutputStream fos;
+
     public DownLoader(@NotNull Socket socket) {
 //        this.socket = socket;
 //        try {

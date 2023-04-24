@@ -76,4 +76,8 @@ public class Udp {
         byte[] bytes = pkt.getData();
         return new String(bytes, 0, pkt.getLength());
     }
+
+    public void close() {
+        socket.close();
+    }
 }
