@@ -28,16 +28,19 @@ public class Handler implements Runnable {
 
     public Handler() {
         udp = new Udp(user.getUdpPort());
+        Thread t1 = new Thread(new Receiver());
+        t1.start();
     }
 
     class Receiver implements Runnable {
         @Override
         public void run() {
-            logger.info("UDP receiver started successfully");
+            logger.debug("UDP receiver started successfully");
             while (isRunning) {
                 String dataStr = udp.receiveString();
                 response(dataStr);
             }
+            logger.debug("UDP receiver ended successfully");
         }
     }
 
