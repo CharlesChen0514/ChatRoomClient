@@ -37,15 +37,15 @@ public class Udp {
     }
 
     public void send(@NotNull String ip, int port,
-                     @NotNull String cmdString) {
-        byte[] bytes = cmdString.getBytes();
+                     @NotNull String dataStr) {
+        byte[] bytes = dataStr.getBytes();
         InetSocketAddress socAddr = new InetSocketAddress(ip, port);
         DatagramPacket packet = new DatagramPacket(bytes, 0, bytes.length, socAddr);
         try {
             socket.send(packet);
-            logger.debug("UDP send message [{}] to {} success", cmdString, socAddr);
+            logger.debug("UDP send data [{}] to {} success", dataStr, socAddr);
         } catch (IOException e) {
-            logger.debug("UDP send message [{}] to {} failed", cmdString, socAddr);
+            logger.debug("UDP send data [{}] to {} failed", dataStr, socAddr);
         }
     }
 

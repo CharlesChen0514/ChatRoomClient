@@ -48,6 +48,7 @@ public class Handler implements Runnable {
         Data data = parse(fDataStr);
         switch (data.getCmdType()) {
             case PRIVATE_MSG:
+                Printer.displayLn("%s say: %s", data.getFrom(), data.getMsg());
                 break;
             case FILE_TRANSFER:
                 break;
@@ -78,6 +79,7 @@ public class Handler implements Runnable {
                 Printer.displayLn(getFriendString());
                 break;
             case PRIVATE_MSG:
+                pmReq(data);
                 break;
             case FILE_TRANSFER:
                 break;
@@ -93,6 +95,17 @@ public class Handler implements Runnable {
             default:
                 Printer.displayLn("Invalid selection, please re-enter");
         }
+    }
+
+    private void pmReq(@NotNull Data data) {
+        String to = data.getTo();
+        if (!isFriend(to)) {
+            Printer.displayLn(String.format("%s is not your friend", to));
+            return;
+        }
+        User toUser = userMap.get(to);
+        udp.send(toUser.getIp(), toUser.getUdpPort(), data.toDataString());
+        Printer.displayLn("To %s say: %s", to, data.getMsg());
     }
 
     private void exit() {
