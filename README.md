@@ -66,6 +66,14 @@ java -jar .\ChatRoomClient.jar
 
 ![StartServer.png](figs/ftReceive.png)
 
+### 删除好友
+
+```
+-dc@chen   // 删除好友 chen
+```
+
+![StartServer.png](figs/delete.png)
+
 ### 设置允许的最大文件大小
 
 ```
