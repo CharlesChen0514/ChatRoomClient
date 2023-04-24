@@ -23,7 +23,8 @@ public class Printer {
     }
 
     public static void displayLn(@NotNull String msg) {
-        display(msg + System.lineSeparator());
+        logger.debug("Display [{}]", msg);
+        System.out.println(getTime() + ": " + msg);
     }
 
     public static void displayLn(@NotNull String format, Object... args) {

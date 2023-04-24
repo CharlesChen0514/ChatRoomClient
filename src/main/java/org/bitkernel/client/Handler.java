@@ -53,12 +53,6 @@ public class Handler implements Runnable {
         }
     }
 
-    private void connectRsp(@NotNull Data data) {
-        User user = User.parse(data.getMsg());
-        userMap.put(user.getName(), user);
-        Printer.display("Connected to ");
-    }
-
     @NotNull
     public Set<User> getFriendObjects() {
         return new LinkedHashSet<>(userMap.values());
@@ -69,7 +63,7 @@ public class Handler implements Runnable {
         logger.debug("Client make request: {}", data);
         switch (data.getCmdType()) {
             case INFO:
-                Printer.display(user.detailed());
+                Printer.displayLn(user.detailed());
                 break;
             case CONNECT:
                 connectReq(data);
@@ -78,14 +72,14 @@ public class Handler implements Runnable {
                 disconnectReq(data);
                 break;
             case FRIENDS:
-                Printer.display(getFriendString());
+                Printer.displayLn(getFriendString());
                 break;
             case PRIVATE_MSG:
                 break;
             case FILE_TRANSFER:
                 break;
             case ACCEPTED_FILES:
-                Printer.display(getAllFileNameString(dir));
+                Printer.displayLn(getAllFileNameString(dir));
                 break;
             case HELP:
                 menu.forEach(System.out::println);
@@ -93,16 +87,16 @@ public class Handler implements Runnable {
             case EXIT:
                 break;
             default:
-                Printer.display("Invalid selection, please re-enter");
+                Printer.displayLn("Invalid selection, please re-enter");
         }
     }
 
     private void disconnectReq(@NotNull Data data) {
         String to = data.getTo();
         if (remove(to)) {
-            Printer.display("Disconnected to " + to);
+            Printer.displayLn("Disconnected to " + to);
         } else {
-            Printer.display(String.format("%s is not your friend", to));
+            Printer.displayLn(String.format("%s is not your friend", to));
         }
     }
 
@@ -125,8 +119,8 @@ public class Handler implements Runnable {
 
         if (isFriend(socAddr)) {
             User u = socAddrMap.get(socAddr);
-            Printer.display(String.format("User %s %s is already is your friend",
-                    u.getName(), socAddr));
+            Printer.displayLn("User %s %s is already is your friend",
+                    u.getName(), socAddr);
             return;
         }
 
@@ -138,7 +132,7 @@ public class Handler implements Runnable {
         } catch (IOException e) {
             String error = String.format("Connect to %s:%d failed", ip, port);
             logger.error(error);
-            System.out.println(error);
+            Printer.displayLn(error);
         }
     }
 

@@ -95,7 +95,7 @@ public class Client {
             String dataStr = user.getName() + sym + cmdLine;
             String fDataStr = formalize(dataStr);
             if (!check(fDataStr)) {
-                Printer.display("Command error, please re-entered");
+                Printer.displayLn("Command error, please re-entered");
                 continue;
             }
             handler.request(fDataStr);

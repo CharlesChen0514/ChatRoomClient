@@ -52,7 +52,7 @@ public class TcpListener implements Runnable {
         connMap.put(from.getName(), conn);
         userMap.put(from.getName(), from);
         socAddrMap.put(from.getTcpSocketAddrStr(), from);
-        Printer.display("Connected to: " + user.detailed());
+        Printer.displayLn("Connected to: " + user.detailed());
     }
 
     @NotNull
