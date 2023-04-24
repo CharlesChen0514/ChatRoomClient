@@ -85,6 +85,9 @@ public class Handler {
             case FILE_TRANSFER:
                 fileTransferReq(data);
                 break;
+            case WAIT_LIST:
+                showWaitList();
+                break;
             case ACCEPTED_FILES:
                 Printer.displayLn(getAllFileNameString(dir));
                 break;
@@ -100,6 +103,18 @@ public class Handler {
                 break;
             default:
                 Printer.displayLn("Invalid selection, please re-enter");
+        }
+    }
+
+    private void showWaitList() {
+        if (fileTransferReqList.isEmpty()) {
+            Printer.displayLn("No requests waiting for file reception");
+            return ;
+        }
+        for (int i = 0; i < fileTransferReqList.size(); i++) {
+            DownLoader downLoader = fileTransferReqList.get(i);
+            System.out.printf("\t%d) from: %s, file name: %s, file size: %s%n", i + 1,
+                    downLoader.getFrom(), downLoader.getFileName(), downLoader.getFileSize());
         }
     }
 

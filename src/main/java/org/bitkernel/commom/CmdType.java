@@ -19,6 +19,7 @@ public enum CmdType {
     DISCONNECT("-dc", "disconnect user", "-dc@{name}"),
     PRIVATE_MSG("-pm", "private message", "-pm@{name}@{msg}"),
     FILE_TRANSFER("-ft", "file transfer", "-ft@{name}@{file}"),
+    WAIT_LIST("-wl", "List of file transfer requests waiting", "-wl"),
     ACCEPTED_FILES("-af", "accepted file list", "-af"),
     MAX_FILE_SIZE("-mfs", "set the maximum file size allowed", "-mfs@{fileSize}"),
     HELP("-h", "command prompt", "-h"),
@@ -43,6 +44,7 @@ public enum CmdType {
         menu.add(FRIENDS);
         menu.add(PRIVATE_MSG);
         menu.add(FILE_TRANSFER);
+        menu.add(WAIT_LIST);
         menu.add(ACCEPTED_FILES);
         menu.add(MAX_FILE_SIZE);
         menu.add(HELP);

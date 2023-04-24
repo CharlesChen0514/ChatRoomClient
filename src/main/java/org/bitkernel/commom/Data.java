@@ -39,6 +39,8 @@ public class Data {
                 return false;
             }
             switch (type) {
+                case INFO:
+                case WAIT_LIST:
                 case FRIENDS:
                 case EXIT:
                 case HELP:
@@ -53,6 +55,8 @@ public class Data {
                     return !to.equals(nullStr) && !msg.equals(nullStr);
                 case MAX_FILE_SIZE:
                     return isNumeric(to) && msg.equals(nullStr);
+                case DISCONNECT:
+                    return !to.equals(nullStr) && msg.equals(nullStr);
             }
         }
         return true;

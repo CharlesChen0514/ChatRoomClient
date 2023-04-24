@@ -9,12 +9,15 @@ import org.bitkernel.commom.User;
 import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
 import static org.bitkernel.client.Client.isRunning;
 import static org.bitkernel.client.Client.user;
+import static org.bitkernel.tcp.DownLoader.MAX_FILE_SIZE;
 
 @Slf4j
 public class TcpListener implements Runnable {
@@ -30,6 +33,7 @@ public class TcpListener implements Runnable {
      * tcp Socket address -> user
      */
     public static final Map<String, User> socAddrMap = new ConcurrentHashMap<>();
+    public static final List<DownLoader> fileTransferReqList = new ArrayList<>();
     public int port;
 
     public TcpListener(int port) {
@@ -67,7 +71,8 @@ public class TcpListener implements Runnable {
                         newConnection(conn);
                         break;
                     case FILE_TRANSFER:
-                        conn.acceptFile(data.getFrom());
+//                        conn.acceptFile(data.getFrom());
+                        addFileTransferReq(conn, data.getFrom());
                         break;
                     default:
                         logger.error("Error command format: {}", dataStr);
@@ -75,6 +80,20 @@ public class TcpListener implements Runnable {
             } catch (IOException e) {
                 logger.error(e.getMessage());
             }
+        }
+    }
+
+    private synchronized void addFileTransferReq(@NotNull TcpConn conn,
+                                                 @NotNull String from) {
+        DownLoader downLoader = new DownLoader(conn, from);
+        downLoader.init();
+        if (downLoader.isExceedMaximumSize()) {
+            Printer.displayLn("%s transferred a file exceed maximum size: %s, " +
+                    "refuse to accept", from, MAX_FILE_SIZE);
+        } else {
+            fileTransferReqList.add(downLoader);
+            Printer.displayLn("New file transfer request: [from: %s, file name: %s, file size: %s]",
+                    from, downLoader.getFileName(), downLoader.getFileSize());
         }
     }
 
