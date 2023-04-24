@@ -8,11 +8,13 @@ import org.bitkernel.commom.Printer;
 import org.bitkernel.commom.User;
 import org.bitkernel.udp.Udp;
 
+import java.util.LinkedHashSet;
 import java.util.Set;
 
 import static org.bitkernel.client.Client.isRunning;
 import static org.bitkernel.client.Client.user;
 import static org.bitkernel.commom.Data.parse;
+import static org.bitkernel.tcp.TcpListener.socAddrMap;
 import static org.bitkernel.tcp.TcpListener.userMap;
 
 @Slf4j
@@ -72,8 +74,16 @@ public class Handler implements Runnable {
         return userMap.keySet();
     }
 
-    public boolean isFriend(@NotNull String name) {
-        return getFriends().contains(name);
+    /**
+     * @param str user name or tcp socket address
+     */
+    public boolean isFriend(@NotNull String str) {
+        return userMap.containsKey(str) || socAddrMap.containsKey(str);
+    }
+
+    @NotNull
+    public Set<User> getFriendObjects() {
+        return new LinkedHashSet<>(userMap.values());
     }
 
     @Override

@@ -15,10 +15,10 @@ import static org.bitkernel.commom.StringUtil.joinDelimiter;
 public enum CmdType {
     INFO("-i", "your user information", "-i"),
     FRIENDS("-fs", "friend list", "-fs"),
-    CONNECT("-c", "connect user", "-c@port"),
-//    CONNECT_RSP("-cr", "response to request connection", "-cr@userString"),
-    PRIVATE_MSG("-pm", "private message", "-pm@chen@hello"),
-    FILE_TRANSFER("-ft", "file transfer", "-ft@chen@file"),
+    CONNECT("-c", "connect user", "-c@{port}, -c@local@{port}, -c@{ip}@{port}"),
+    DISCONNECT("-dc", "disconnect user", "-dc@{name}"),
+    PRIVATE_MSG("-pm", "private message", "-pm@{name}@{msg}"),
+    FILE_TRANSFER("-ft", "file transfer", "-ft@{name}@{file}"),
     ACCEPTED_FILES("-af", "accepted file list", "-af"),
     HELP("-h", "command prompt", "-h"),
     EXIT("-q", "exit", "-q");
@@ -47,7 +47,7 @@ public enum CmdType {
     }
 
     @NotNull
-    public static String constructCmdString(@NotNull String ...args) {
+    public static String constructCmdString(@NotNull String... args) {
         return joinDelimiter(args, sym);
     }
 

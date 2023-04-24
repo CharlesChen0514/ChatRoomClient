@@ -40,4 +40,10 @@ public class StringUtil {
         }
         return c;
     }
+
+    @NotNull
+    public static String getSocketAddrStr(@NotNull String ip,
+                                          int port) {
+        return String.format("%s:%d", ip, port);
+    }
 }

@@ -41,6 +41,16 @@ public class TcpConn {
             return false;
         }
     }
+
+    public void close() {
+        try {
+            socket.close();
+            br.close();
+            pw.close();
+        } catch (IOException e) {
+            logger.error("Close resource error");
+        }
+    }
 }
 
 class DownLoader {

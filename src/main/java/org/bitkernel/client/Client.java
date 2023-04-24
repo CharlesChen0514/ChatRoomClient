@@ -16,12 +16,13 @@ import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.util.Scanner;
 
-import static org.bitkernel.commom.CmdType.*;
+import static org.bitkernel.commom.CmdType.menu;
 import static org.bitkernel.commom.Data.*;
 import static org.bitkernel.commom.FileUtil.createFolder;
 import static org.bitkernel.commom.FileUtil.getAllFileNameString;
-import static org.bitkernel.commom.StringUtil.count;
-import static org.bitkernel.tcp.TcpListener.*;
+import static org.bitkernel.commom.StringUtil.*;
+import static org.bitkernel.tcp.TcpListener.add;
+import static org.bitkernel.tcp.TcpListener.socAddrMap;
 
 @Slf4j
 @NoArgsConstructor
@@ -133,14 +134,36 @@ public class Client {
     }
 
     private void connectReq(@NotNull Data data) {
-        int port = Integer.parseInt(data.getTo());
+        String ip;
+        int port;
+        if (isNumeric(data.getTo())) {
+            ip = localHost;
+            port = Integer.parseInt(data.getTo());
+        } else {
+            if (data.getTo().equals("local")) {
+                ip = localHost;
+            } else {
+                ip = data.getTo();
+            }
+            port = Integer.parseInt(data.getMsg());
+        }
+        String socAddr = getSocketAddrStr(ip, port);
+
+
+        if (handler.isFriend(socAddr)) {
+            User u = socAddrMap.get(socAddr);
+            Printer.display(String.format("User %s %s is already is your friend",
+                    u.getName(), socAddr));
+            return;
+        }
+
         try {
-            TcpConn conn = new TcpConn(localHost, port);
+            TcpConn conn = new TcpConn(ip, port);
             conn.getPw().println(user);
             String userString = conn.getBr().readLine();
             add(userString, conn);
         } catch (IOException e) {
-            String error = String.format("Connect to %s:%d failed", localHost, port);
+            String error = String.format("Connect to %s:%d failed", ip, port);
             logger.error(error);
             System.out.println(error);
         }

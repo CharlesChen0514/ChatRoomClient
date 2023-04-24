@@ -16,8 +16,12 @@ import static org.bitkernel.client.Client.user;
 
 @Slf4j
 public class TcpListener implements Runnable {
+    /** name -> user */
     public static final Map<String, User> userMap = new ConcurrentHashMap<>();
+    /** name -> tcp connection */
     public static final Map<String, TcpConn> connMap = new ConcurrentHashMap<>();
+    /** tcp Socket address -> user */
+    public static final Map<String, User> socAddrMap = new ConcurrentHashMap<>();
     public int port;
 
     public TcpListener(int port) {
@@ -46,6 +50,7 @@ public class TcpListener implements Runnable {
         User from = User.parse(userString);
         connMap.put(from.getName(), conn);
         userMap.put(from.getName(), from);
+        socAddrMap.put(from.getTcpSocketAddrStr(), from);
         Printer.display("Connected to: " + from.getName());
     }
 }

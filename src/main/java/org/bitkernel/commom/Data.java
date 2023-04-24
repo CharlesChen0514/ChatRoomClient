@@ -5,6 +5,7 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.validator.routines.InetAddressValidator;
 
 import static org.bitkernel.commom.StringUtil.*;
 
@@ -44,7 +45,9 @@ public class Data {
                 case ACCEPTED_FILES:
                     return to.equals(nullStr) && msg.equals(nullStr);
                 case CONNECT:
-                    return !to.equals(nullStr) && isNumeric(to) && msg.equals(nullStr);
+                    return (isNumeric(to) && msg.equals(nullStr) ||
+                            isValidIp(to) && isNumeric(msg) ||
+                            to.equals("local") && isNumeric(msg));
                 case PRIVATE_MSG:
                 case FILE_TRANSFER:
                     return !to.equals(nullStr) && !msg.equals(nullStr);
@@ -84,5 +87,21 @@ public class Data {
     @NotNull
     public String toDataString() {
         return joinDelimiter(from, cmdType.cmd, to, msg, sym);
+    }
+
+    public static boolean isValidIp(String ipStr) {
+        InetAddressValidator validator = InetAddressValidator.getInstance();
+        return validator.isValidInet4Address(ipStr);
+    }
+
+    public static void main(String[] args) {
+        String ipTest1 = "1.1.1";
+        String ipTest2 = "01.1.1";
+        String ipTest3 = "01.1.1.1";
+        String ipTest4 = ".1.1.1";
+        System.out.println(ipTest1 + " " + isValidIp(ipTest1));
+        System.out.println(ipTest2 + " " + isValidIp(ipTest2));
+        System.out.println(ipTest3 + " " + isValidIp(ipTest3));
+        System.out.println(ipTest4 + " " + isValidIp(ipTest4));
     }
 }
