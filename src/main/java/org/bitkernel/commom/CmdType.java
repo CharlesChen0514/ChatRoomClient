@@ -38,6 +38,7 @@ public enum CmdType {
         menu = new LinkedHashSet<>();
         menu.add(INFO);
         menu.add(CONNECT);
+        menu.add(DISCONNECT);
         menu.add(FRIENDS);
         menu.add(PRIVATE_MSG);
         menu.add(FILE_TRANSFER);
