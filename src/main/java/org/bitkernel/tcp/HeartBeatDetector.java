@@ -15,7 +15,7 @@ import static org.bitkernel.tcp.TcpListener.remove;
 public class HeartBeatDetector implements Runnable {
 
     public static final int TIME_INTERVAL = 1000;
-    public static final int WAIT_INTERVAL = 100;
+//    public static final int WAIT_INTERVAL = 100;
     public static final String HEART_BEAT = "Heart beat\n";
     public static final String ALIVE = "Alive\n";
 
@@ -37,7 +37,6 @@ public class HeartBeatDetector implements Runnable {
         try {
             conn.getDout().writeUTF(HEART_BEAT);
             conn.getDout().flush();
-            Thread.sleep(WAIT_INTERVAL);
             String rsp = conn.getDin().readUTF();
             if (rsp.equals(ALIVE)) {
                 return true;
