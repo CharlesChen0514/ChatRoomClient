@@ -3,15 +3,14 @@ package org.bitkernel.client;
 import com.sun.istack.internal.NotNull;
 import lombok.NoArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.bitkernel.commom.Data;
 import org.bitkernel.commom.Printer;
 import org.bitkernel.commom.User;
+import org.bitkernel.tcp.HeartBeatDetector;
 import org.bitkernel.tcp.TcpConn;
 import org.bitkernel.tcp.TcpListener;
 import org.bitkernel.udp.Udp;
 
 import java.io.File;
-import java.io.IOException;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.util.Scanner;
@@ -19,10 +18,7 @@ import java.util.Scanner;
 import static org.bitkernel.commom.CmdType.menu;
 import static org.bitkernel.commom.Data.*;
 import static org.bitkernel.commom.FileUtil.createFolder;
-import static org.bitkernel.commom.FileUtil.getAllFileNameString;
-import static org.bitkernel.commom.StringUtil.*;
-import static org.bitkernel.tcp.TcpListener.add;
-import static org.bitkernel.tcp.TcpListener.socAddrMap;
+import static org.bitkernel.commom.StringUtil.count;
 
 @Slf4j
 @NoArgsConstructor
@@ -109,7 +105,9 @@ public class Client {
 
     private void startLocalServer() {
         Thread t1 = new Thread(new TcpListener(user.getTcpListenPort()));
-        handler = new Handler();
+        Thread t2 = new Thread(new HeartBeatDetector());
         t1.start();
+        t2.start();
+        handler = new Handler();
     }
 }

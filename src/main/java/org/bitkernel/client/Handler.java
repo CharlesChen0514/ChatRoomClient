@@ -126,8 +126,12 @@ public class Handler implements Runnable {
 
         try {
             TcpConn conn = new TcpConn(ip, port);
-            conn.getPw().println(user);
-            String userString = conn.getBr().readLine();
+            logger.debug("Start send user information");
+            conn.getDout().writeUTF(user.toString());
+            conn.getDout().flush();
+            logger.debug("Send your own information success");
+            String userString = conn.getDin().readUTF();
+            logger.debug("Receive friend information success");
             add(userString, conn);
         } catch (IOException e) {
             String error = String.format("Connect to %s:%d failed", ip, port);

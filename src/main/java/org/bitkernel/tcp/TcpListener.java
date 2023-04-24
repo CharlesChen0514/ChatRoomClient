@@ -17,11 +17,17 @@ import static org.bitkernel.client.Client.user;
 
 @Slf4j
 public class TcpListener implements Runnable {
-    /** name -> user */
+    /**
+     * name -> user
+     */
     public static final Map<String, User> userMap = new ConcurrentHashMap<>();
-    /** name -> tcp connection */
+    /**
+     * name -> tcp connection
+     */
     public static final Map<String, TcpConn> connMap = new ConcurrentHashMap<>();
-    /** tcp Socket address -> user */
+    /**
+     * tcp Socket address -> user
+     */
     public static final Map<String, User> socAddrMap = new ConcurrentHashMap<>();
     public int port;
 
@@ -36,8 +42,12 @@ public class TcpListener implements Runnable {
             while (isRunning) {
                 Socket socket = serverSocket.accept();
                 TcpConn conn = new TcpConn(socket);
-                String userString = conn.getBr().readLine();
-                conn.getPw().println(user);
+                logger.debug("Start send user information");
+                conn.getDout().writeUTF(user.toString());
+                conn.getDout().flush();
+                logger.debug("Send your own information success");
+                String userString = conn.getDin().readUTF();
+                logger.debug("Receive friend information success");
                 add(userString, conn);
             }
             logger.info("Tcp listener stop successfully");
@@ -48,7 +58,9 @@ public class TcpListener implements Runnable {
 
     public static void add(@NotNull String userString,
                            @NotNull TcpConn conn) {
+        conn.startHeartBeat();
         User from = User.parse(userString);
+        conn.setTo(from);
         connMap.put(from.getName(), conn);
         userMap.put(from.getName(), from);
         socAddrMap.put(from.getTcpSocketAddrStr(), from);
