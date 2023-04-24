@@ -6,6 +6,7 @@ import lombok.NoArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
 import static org.bitkernel.commom.Data.sym;
+import static org.bitkernel.commom.StringUtil.joinDelimiter;
 
 @NoArgsConstructor
 @Slf4j
@@ -29,10 +30,7 @@ public class User {
 
     @NotNull
     public String toString() {
-        return name + sym
-                + ip + sym
-                + udpPort + sym
-                + tcpListenPort;
+        return joinDelimiter(name, ip, String.valueOf(udpPort), String.valueOf(tcpListenPort), " ");
     }
 
     @NotNull
@@ -42,10 +40,10 @@ public class User {
     }
 
     @NotNull
-    public static User parse(@NotNull String str) {
-        String[] split = str.split(sym);
+    public static User parse(@NotNull String userString) {
+        String[] split = userString.split(" ");
         if (split.length != 4) {
-            logger.error("Error user string format: {}", str);
+            logger.error("Error user string format: {}", userString);
             return new User();
         }
         String name = split[0].trim();

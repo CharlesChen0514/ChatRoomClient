@@ -4,28 +4,34 @@ import com.sun.istack.internal.NotNull;
 import lombok.NoArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.bitkernel.commom.Data;
+import org.bitkernel.commom.Printer;
 import org.bitkernel.commom.User;
 import org.bitkernel.tcp.TcpConn;
 import org.bitkernel.tcp.TcpListener;
 import org.bitkernel.udp.Udp;
 
 import java.io.File;
+import java.io.IOException;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.util.Scanner;
 
+import static org.bitkernel.commom.CmdType.*;
 import static org.bitkernel.commom.Data.*;
 import static org.bitkernel.commom.FileUtil.createFolder;
-import static org.bitkernel.commom.CmdType.menu;
+import static org.bitkernel.commom.FileUtil.getAllFileNameString;
+import static org.bitkernel.commom.StringUtil.count;
+import static org.bitkernel.tcp.TcpListener.*;
 
 @Slf4j
 @NoArgsConstructor
 public class Client {
     private final Scanner in = new Scanner(System.in);
     public static final String localHost;
-    private User user;
-    private String dir;
-    private boolean isRunning = true;
+    public static boolean isRunning = true;
+    public static User user;
+    private static String dir;
+    private Handler handler;
 
     static {
         try {
@@ -48,13 +54,16 @@ public class Client {
         System.out.println("Welcome to chat room, please login");
         System.out.print("Input username: ");
         String name = in.next();
+//        String name = "chen";
 
         while (true) {
             // Ip defaults to local host
             System.out.print("UDP port: ");
             int udpPort = in.nextInt();
+//            int udpPort = 9996;
             System.out.print("Tcp listen port: ");
             int listenerPort = in.nextInt();
+//            int listenerPort = 9997;
 
             if (!Udp.checkPort(udpPort) || !TcpConn.checkPort(listenerPort)) {
                 System.out.println("Input port unavailable, please re-entered");
@@ -79,7 +88,7 @@ public class Client {
     private void chat() {
         System.out.println("Command guide:");
         menu.forEach(System.out::println);
-//        in.nextLine();
+        in.nextLine();
         while (isRunning) {
             String cmdLine = in.nextLine();
             String dataStr = user.getName() + sym + cmdLine;
@@ -88,23 +97,30 @@ public class Client {
                 System.out.println("Command error, please re-entered");
                 continue;
             }
-            process(fDataStr);
+            request(fDataStr);
         }
         logger.info("Exit chat menu");
     }
 
-    private void process(@NotNull String fDataStr) {
+    private void request(@NotNull String fDataStr) {
         Data data = parse(fDataStr);
+        logger.debug("Client make request: {}", data);
         switch (data.getCmdType()) {
-            case FRIENDS:
+            case INFO:
+                Printer.display(user.detailed());
                 break;
             case CONNECT:
+                connectReq(data);
+                break;
+            case FRIENDS:
+                Printer.display(handler.getFriendString());
                 break;
             case PRIVATE_MSG:
                 break;
             case FILE_TRANSFER:
                 break;
             case ACCEPTED_FILES:
+                Printer.display(getAllFileNameString(dir));
                 break;
             case HELP:
                 menu.forEach(System.out::println);
@@ -116,12 +132,27 @@ public class Client {
         }
     }
 
+    private void connectReq(@NotNull Data data) {
+        int port = Integer.parseInt(data.getTo());
+        try {
+            TcpConn conn = new TcpConn(localHost, port);
+            conn.getPw().println(user);
+            String userString = conn.getBr().readLine();
+            add(userString, conn);
+        } catch (IOException e) {
+            String error = String.format("Connect to %s:%d failed", localHost, port);
+            logger.error(error);
+            System.out.println(error);
+        }
+    }
+
     private boolean check(@NotNull String dataStr) {
-        return countDelimiter(dataStr) == 3 && checkDataStr(dataStr);
+        return count(dataStr, sym.toCharArray()[0]) == 3 && checkDataStr(dataStr);
     }
 
     private void startLocalServer() {
         Thread t1 = new Thread(new TcpListener(user.getTcpListenPort()));
+        handler = new Handler();
         t1.start();
     }
 }

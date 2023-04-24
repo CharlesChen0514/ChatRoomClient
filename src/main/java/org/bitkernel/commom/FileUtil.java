@@ -37,10 +37,11 @@ public class FileUtil {
     @NotNull
     public static String getAllFileNameString(@NotNull String fileDir) {
         Set<String> allFileNameSet = getAllFileNameSet(fileDir);
-        StringBuilder sb = new StringBuilder();
         if (allFileNameSet.isEmpty()) {
-            return sb.toString();
+            return "You have no files yet";
         }
+        StringBuilder sb = new StringBuilder();
+        sb.append("Accepted files: ");
         allFileNameSet.forEach(name -> sb.append(name).append(", "));
         // remove the last delimiter
         sb.deleteCharAt(sb.length() - 1);

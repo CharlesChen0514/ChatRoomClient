@@ -6,6 +6,8 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
+import static org.bitkernel.commom.StringUtil.*;
+
 @Slf4j
 @NoArgsConstructor
 @AllArgsConstructor
@@ -51,15 +53,6 @@ public class Data {
         return true;
     }
 
-    private static boolean isNumeric(String str) {
-        for (char ch : str.toCharArray()) {
-            if (!Character.isDigit(ch)) {
-                return false;
-            }
-        }
-        return true;
-    }
-
     @NotNull
     public static Data parse(@NotNull String dataStr) {
         String[] split = dataStr.split(sym);
@@ -72,7 +65,7 @@ public class Data {
 
     @NotNull
     public static String formalize(@NotNull String pktStr) {
-        int c = countDelimiter(pktStr);
+        int c = count(pktStr, sym.toCharArray()[0]);
         int r = 3 - c;
         StringBuilder sb = new StringBuilder(pktStr);
         while (r > 0) {
@@ -82,14 +75,14 @@ public class Data {
         return sb.toString();
     }
 
-    public static int countDelimiter(@NotNull String pktStr) {
-        int c = 0;
-        char symChar = sym.toCharArray()[0];
-        for (char ch : pktStr.toCharArray()) {
-            if (ch == symChar) {
-                c++;
-            }
-        }
-        return c;
+    @NotNull
+    @Override
+    public String toString() {
+        return joinDelimiter(from, cmdType.cmd, to, msg, " ");
+    }
+
+    @NotNull
+    public String toDataString() {
+        return joinDelimiter(from, cmdType.cmd, to, msg, sym);
     }
 }

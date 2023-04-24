@@ -14,8 +14,8 @@
         </encoder>
     </appender>
 
-    <logger name="org.bitkernel" level="debug">
+    <root name="org.bitkernel" level="debug">
         <appender-ref ref="STDOUT" />
         <appender-ref ref="FILE" />
-    </logger>
+    </root>
 </configuration>

@@ -4,10 +4,7 @@ import com.sun.istack.internal.NotNull;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStreamReader;
-import java.io.PrintWriter;
+import java.io.*;
 import java.net.InetSocketAddress;
 import java.net.Socket;
 
@@ -43,5 +40,20 @@ public class TcpConn {
             logger.debug("Tcp port {} is unavailable", port);
             return false;
         }
+    }
+}
+
+class DownLoader {
+    private Socket socket;
+    private DataInputStream is;
+    private FileOutputStream fos;
+    public DownLoader(@NotNull Socket socket) {
+//        this.socket = socket;
+//        try {
+//            DataInputStream is = new DataInputStream(socket.getInputStream());
+//            FileOutputStream fos = new FileOutputStream(outputPath);
+//        } catch (IOException e) {
+//            throw new RuntimeException(e);
+//        }
     }
 }
