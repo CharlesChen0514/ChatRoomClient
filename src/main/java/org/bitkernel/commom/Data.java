@@ -51,6 +51,8 @@ public class Data {
                 case PRIVATE_MSG:
                 case FILE_TRANSFER:
                     return !to.equals(nullStr) && !msg.equals(nullStr);
+                case MAX_FILE_SIZE:
+                    return isNumeric(to) && msg.equals(nullStr);
             }
         }
         return true;

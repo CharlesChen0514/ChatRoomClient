@@ -6,6 +6,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.bitkernel.commom.Data;
 import org.bitkernel.commom.Printer;
 import org.bitkernel.commom.User;
+import org.bitkernel.tcp.DownLoader;
 import org.bitkernel.tcp.TcpConn;
 import org.bitkernel.udp.Udp;
 
@@ -89,6 +90,10 @@ public class Handler {
                 break;
             case HELP:
                 menu.forEach(System.out::println);
+                break;
+            case MAX_FILE_SIZE:
+                DownLoader.MAX_FILE_SIZE = Long.parseLong(data.getTo());
+                Printer.displayLn("Maximum allowed file size is set to %d", DownLoader.MAX_FILE_SIZE);
                 break;
             case EXIT:
                 exit();

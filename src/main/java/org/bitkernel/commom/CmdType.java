@@ -20,6 +20,7 @@ public enum CmdType {
     PRIVATE_MSG("-pm", "private message", "-pm@{name}@{msg}"),
     FILE_TRANSFER("-ft", "file transfer", "-ft@{name}@{file}"),
     ACCEPTED_FILES("-af", "accepted file list", "-af"),
+    MAX_FILE_SIZE("-mfs", "set the maximum file size allowed", "-mfs@{fileSize}"),
     HELP("-h", "command prompt", "-h"),
     EXIT("-q", "exit", "-q");
 
@@ -43,6 +44,7 @@ public enum CmdType {
         menu.add(PRIVATE_MSG);
         menu.add(FILE_TRANSFER);
         menu.add(ACCEPTED_FILES);
+        menu.add(MAX_FILE_SIZE);
         menu.add(HELP);
         menu.add(EXIT);
     }
