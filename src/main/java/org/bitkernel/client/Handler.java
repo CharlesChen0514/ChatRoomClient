@@ -88,7 +88,7 @@ public class Handler {
             case FILE_TRANSFER:
                 fileTransferReq(data);
                 break;
-            case TRANSFER_LIST:
+            case RECEPTION_REQ_LIST:
                 showWaitList();
                 break;
             case ACCEPT:

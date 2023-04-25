@@ -40,7 +40,7 @@ public class Data {
             }
             switch (type) {
                 case INFO:
-                case TRANSFER_LIST:
+                case RECEPTION_REQ_LIST:
                 case FRIENDS:
                 case EXIT:
                 case HELP:

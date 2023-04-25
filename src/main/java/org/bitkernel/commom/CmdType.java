@@ -19,9 +19,9 @@ public enum CmdType {
     DISCONNECT("-dc", "disconnect user", "-dc@{name}"),
     PRIVATE_MSG("-pm", "private message", "-pm@{name}@{msg}"),
     FILE_TRANSFER("-ft", "file transfer", "-ft@{name}@{file}"),
-    TRANSFER_LIST("-tl", "List of file transfer requests", "-tl"),
-    ACCEPT("-a", "accept file", "-a@{transfer list number}"),
-    REFUSE("-r", "refuse file transfer requset", "-r@{transfer list number}"),
+    RECEPTION_REQ_LIST("-rrl", "List of file reception requests", "-rrl"),
+    ACCEPT("-a", "accept file", "-a@{reception list number}"),
+    REFUSE("-r", "refuse file reception request", "-r@{reception list number}"),
     ACCEPTED_FILES("-af", "accepted file list", "-af"),
     MAX_FILE_SIZE("-mfs", "set the maximum file size allowed", "-mfs@{fileSize}"),
     HELP("-h", "command prompt", "-h"),
@@ -46,7 +46,7 @@ public enum CmdType {
         menu.add(FRIENDS);
         menu.add(PRIVATE_MSG);
         menu.add(FILE_TRANSFER);
-        menu.add(TRANSFER_LIST);
+        menu.add(RECEPTION_REQ_LIST);
         menu.add(ACCEPT);
         menu.add(REFUSE);
         menu.add(ACCEPTED_FILES);
