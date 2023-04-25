@@ -9,6 +9,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 
 import static org.bitkernel.client.Client.dir;
+import static org.bitkernel.commom.FileUtil.deleteFile;
 import static org.bitkernel.commom.Printer.getTime;
 
 @Slf4j
@@ -69,6 +70,7 @@ public class DownLoader extends Loader implements Runnable {
                 case REFUSE:
                     flag = true;
                     close("Refuse");
+                    deleteFile(outputPath);
                     break;
                 default:
             }

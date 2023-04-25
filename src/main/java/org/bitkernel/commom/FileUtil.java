@@ -49,6 +49,19 @@ public class FileUtil {
         return sb.toString();
     }
 
+    public static void deleteFile(@NotNull String filePath) {
+        if (!exist(filePath)) {
+            logger.error("File [{}] not exist", filePath);
+            return;
+        }
+        File file = new File(filePath);
+        if (file.delete()) {
+            logger.debug("Delete file [{}] success", filePath);
+        } else {
+            logger.debug("Delete file [{}] failed", filePath);
+        }
+    }
+
     /**
      * Create a folder that does nothing if it exists,
      * or recursively create if it doesn't.
