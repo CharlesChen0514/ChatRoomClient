@@ -84,15 +84,14 @@ public class DownLoader extends Loader implements Runnable {
         logger.debug("Received all byte of file {} from {}", fileName, from);
         close("Done");
         endTime = getTime();
-        watch.stop();
         outputInfo();
         logger.debug("Accept file {} from {} success", fileName, from);
     }
 
     private void acceptOneBuffBytes() {
+        watch.start();
         byte[] buf = new byte[BUFFER_SIZE];
         int length;
-//        logger.debug("Accepting {}", offset);
         try {
             length = in.read(buf);
             offset += length;
@@ -104,13 +103,13 @@ public class DownLoader extends Loader implements Runnable {
         } catch (IOException e) {
             logger.error(e.getMessage());
         }
+        watch.stop();
     }
 
     public void start() {
         switch (status) {
             case READY:
                 startTime = getTime();
-                watch.start();
                 logger.debug("Start accept file {} from {}", fileName, from);
                 Printer.displayLn("Start accept file [%s] from [%s]", fileName, from);
                 status = Status.RUNNING;
@@ -159,6 +158,7 @@ public class DownLoader extends Loader implements Runnable {
             fos.flush();
             fos.close();
             out.writeUTF(msg);
+            out.writeUTF(String.valueOf(watch.getTotalTimeMillis()));
             out.flush();
             conn.close();
             logger.debug("Close all relevant resource");
@@ -172,7 +172,7 @@ public class DownLoader extends Loader implements Runnable {
         System.out.printf("Successfully accept file from [%s]%n", from);
         System.out.printf("File name [%s], file size [%s bytes], store in [%s]%n",
                 fileName, fileSize, outputPath);
-        System.out.printf("Start time [%s], end time [%s], total time [%d ms]%n", startTime, endTime, ms);
+        System.out.printf("Start time [%s], end time [%s], transmission time [%d ms]%n", startTime, endTime, ms);
     }
 
     public boolean isDone() {

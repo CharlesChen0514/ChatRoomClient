@@ -17,6 +17,7 @@ public class UpLoader extends Loader implements Runnable {
     private final String filePath;
     private final File file;
     private boolean flag = true;
+    private String tranTime;
 
     public UpLoader(@NotNull TcpConn conn, @NotNull User toUser,
                     @NotNull String filePath) {
@@ -38,8 +39,9 @@ public class UpLoader extends Loader implements Runnable {
         try {
             DataInputStream fis = new DataInputStream(new BufferedInputStream(Files.newInputStream(Paths.get(filePath))));
             fileName = file.getName();
+            fileSize = file.length();
             out.writeUTF(fileName);
-            out.writeUTF(String.valueOf(file.length()));
+            out.writeUTF(String.valueOf(fileSize));
             out.flush();
 
             String rsp = conn.getDin().readUTF();
@@ -57,9 +59,11 @@ public class UpLoader extends Loader implements Runnable {
                 if (read == -1) {
                     break;
                 }
+                offset += read;
                 out.write(buf, 0, read);
+                out.flush();
             }
-            out.flush();
+//            out.flush();
             logger.debug("File upload complete, waiting for reception");
             endTime = getTime();
             watch.stop();
@@ -74,6 +78,7 @@ public class UpLoader extends Loader implements Runnable {
                 logger.debug("{} refuse to accept the file {}", toUser.getName(), fileName);
                 flag = false;
             }
+            tranTime = conn.getDin().readUTF();
             fis.close();
         } catch (IOException e) {
             Printer.displayLn("%s refuse to accept the file %s", toUser.getName(), fileName);
@@ -91,6 +96,6 @@ public class UpLoader extends Loader implements Runnable {
         long ms = watch.getTotalTimeMillis();
         System.out.printf("Successfully transfer file to [%s]%n", toUser.getName());
         System.out.printf("File name [%s], file size [%s bytes]%n", file.getName(), file.length());
-        System.out.printf("Start time [%s], end time [%s], total time [%d ms]%n", startTime, endTime, ms);
+        System.out.printf("Start time [%s], end time [%s], transmission time [%s ms]%n", startTime, endTime, tranTime);
     }
 }

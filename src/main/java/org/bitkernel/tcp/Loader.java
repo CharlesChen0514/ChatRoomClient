@@ -2,13 +2,14 @@ package org.bitkernel.tcp;
 
 import com.sun.istack.internal.NotNull;
 import lombok.Getter;
+import org.bitkernel.commom.ConsoleProgressBarDemo;
 import org.springframework.util.StopWatch;
 
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 
 public class Loader {
-    protected static final int BUFFER_SIZE = 16;
+    protected static final int BUFFER_SIZE = 1024;
     protected final TcpConn conn;
     protected final StopWatch watch = new StopWatch();
     @Getter
