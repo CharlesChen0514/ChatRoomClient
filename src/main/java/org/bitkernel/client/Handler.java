@@ -8,10 +8,13 @@ import org.bitkernel.commom.Printer;
 import org.bitkernel.commom.User;
 import org.bitkernel.tcp.DownLoader;
 import org.bitkernel.tcp.TcpConn;
+import org.bitkernel.tcp.TcpListener;
 import org.bitkernel.udp.Udp;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.LinkedHashSet;
+import java.util.List;
 import java.util.Set;
 
 import static org.bitkernel.client.Client.*;
@@ -88,6 +91,9 @@ public class Handler {
             case WAIT_LIST:
                 showWaitList();
                 break;
+            case ACCEPT:
+                acceptFile(Integer.parseInt(data.getTo()));
+                break;
             case ACCEPTED_FILES:
                 Printer.displayLn(getAllFileNameString(dir));
                 break;
@@ -107,15 +113,37 @@ public class Handler {
     }
 
     private void showWaitList() {
+        cleanWaitList();
         if (fileTransferReqList.isEmpty()) {
             Printer.displayLn("No requests waiting for file reception");
-            return ;
+            return;
         }
         for (int i = 0; i < fileTransferReqList.size(); i++) {
             DownLoader downLoader = fileTransferReqList.get(i);
-            System.out.printf("\t%d) from: %s, file name: %s, file size: %s%n", i + 1,
-                    downLoader.getFrom(), downLoader.getFileName(), downLoader.getFileSize());
+            System.out.printf("\t%d) from: %s, file name: %s, file size: %s, progress: %.2f%%%n",
+                    i + 1, downLoader.getFrom(), downLoader.getFileName(),
+                    downLoader.getFileSize(), downLoader.progressPercentage());
         }
+    }
+
+    private void cleanWaitList() {
+        List<Integer> removeList = new ArrayList<>();
+        for (int i = 0; i < fileTransferReqList.size(); i++) {
+            if (fileTransferReqList.get(i).isDone()) {
+                removeList.add(i);
+            }
+        }
+        removeList.forEach(TcpListener::removeFileTransferReq);
+    }
+
+    private void acceptFile(int waitListNumber) {
+        if (waitListNumber > fileTransferReqList.size() || waitListNumber <= 0) {
+            Printer.displayLn("Wrong index of waiting list, valid range is %d - %d",
+                    1, fileTransferReqList.size());
+            return;
+        }
+        DownLoader downLoader = fileTransferReqList.get(waitListNumber - 1);
+        downLoader.start();
     }
 
     private void fileTransferReq(@NotNull Data data) {

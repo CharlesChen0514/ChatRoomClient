@@ -83,18 +83,31 @@ public class TcpListener implements Runnable {
         }
     }
 
-    private synchronized void addFileTransferReq(@NotNull TcpConn conn,
+    private static synchronized void addFileTransferReq(@NotNull TcpConn conn,
                                                  @NotNull String from) {
         DownLoader downLoader = new DownLoader(conn, from);
         downLoader.init();
         if (downLoader.isExceedMaximumSize()) {
             Printer.displayLn("%s transferred a file exceed maximum size: %s, " +
                     "refuse to accept", from, MAX_FILE_SIZE);
+            conn.close();
         } else {
             fileTransferReqList.add(downLoader);
             Printer.displayLn("New file transfer request: [from: %s, file name: %s, file size: %s]",
                     from, downLoader.getFileName(), downLoader.getFileSize());
+            Thread t1 = new Thread(downLoader);
+            t1.start();
         }
+    }
+
+    public static synchronized void removeFileTransferReq(int idx) {
+        if (idx < 0 || idx >= fileTransferReqList.size()) {
+            logger.error("Invalid index: {}, range 0 - {}", idx, fileTransferReqList.size() - 1);
+            return;
+        }
+        DownLoader downLoader = fileTransferReqList.get(idx);
+        fileTransferReqList.remove(idx);
+        logger.debug("Remove file transfer request: {}:{}", downLoader.getFrom(), downLoader.getFileName());
     }
 
     private void newConnection(@NotNull TcpConn conn) throws IOException {

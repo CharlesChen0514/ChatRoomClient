@@ -4,7 +4,6 @@ import com.sun.istack.internal.NotNull;
 import lombok.extern.slf4j.Slf4j;
 import org.bitkernel.commom.Printer;
 import org.bitkernel.commom.User;
-import org.springframework.util.StopWatch;
 
 import java.io.*;
 import java.nio.file.Files;
@@ -13,23 +12,18 @@ import java.nio.file.Paths;
 import static org.bitkernel.commom.Printer.getTime;
 
 @Slf4j
-public class UpLoader implements Runnable {
-    private final StopWatch watch = new StopWatch();
-    private String startTime;
-    private String endTime;
-    private static final int WRITE_BUFFER_SIZE = 1024;
+public class UpLoader extends Loader implements Runnable {
     private final User toUser;
     private final String filePath;
-    private File file;
-    private TcpConn conn;
+    private final File file;
     private boolean flag = true;
 
     public UpLoader(@NotNull TcpConn conn, @NotNull User toUser,
-                      @NotNull String filePath) {
+                    @NotNull String filePath) {
+        super(conn);
         this.toUser = toUser;
         this.filePath = filePath;
         file = new File(filePath);
-        this.conn = conn;
     }
 
     @Override
@@ -39,10 +33,8 @@ public class UpLoader implements Runnable {
     }
 
     private void pushFile() {
-        logger.debug("Start push file: {}", filePath);
         startTime = getTime();
         watch.start();
-        DataOutputStream out = conn.getDout();
         try {
             DataInputStream fis = new DataInputStream(new BufferedInputStream(Files.newInputStream(Paths.get(filePath))));
             out.writeUTF(file.getName());
@@ -55,8 +47,10 @@ public class UpLoader implements Runnable {
                 flag = false;
                 return;
             }
+            Printer.displayLn("Add to recipient's waiting list");
 
-            byte[] buf = new byte[WRITE_BUFFER_SIZE];
+            logger.debug("Start push file [{}] to [{}]", file.getName(), toUser.getName());
+            byte[] buf = new byte[BUFFER_SIZE];
             while (true) {
                 int read = fis.read(buf);
                 if (read == -1) {
@@ -65,10 +59,11 @@ public class UpLoader implements Runnable {
                 out.write(buf, 0, read);
             }
             out.flush();
+            logger.debug("File upload complete, waiting for reception");
 
             // waiting for receiver reception done
             conn.getDin().readUTF();
-            logger.debug("File receiver reception is complete");
+            logger.debug("File recipient received completed");
             fis.close();
         } catch (IOException e) {
             throw new RuntimeException(e);

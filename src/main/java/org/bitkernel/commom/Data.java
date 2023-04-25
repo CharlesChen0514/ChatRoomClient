@@ -54,6 +54,7 @@ public class Data {
                 case FILE_TRANSFER:
                     return !to.equals(nullStr) && !msg.equals(nullStr);
                 case MAX_FILE_SIZE:
+                case ACCEPT:
                     return isNumeric(to) && msg.equals(nullStr);
                 case DISCONNECT:
                     return !to.equals(nullStr) && msg.equals(nullStr);
