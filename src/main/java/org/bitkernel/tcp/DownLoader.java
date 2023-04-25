@@ -14,7 +14,7 @@ import static org.bitkernel.commom.Printer.getTime;
 
 @Slf4j
 public class DownLoader extends Loader implements Runnable {
-    public static long MAX_FILE_SIZE = 500 * 1024 * 1024;
+    public static long MAX_FILE_SIZE = 500L * 1024 * 1024 * 10;
     @Getter
     private final String from;
     private String outputPath;
@@ -92,7 +92,7 @@ public class DownLoader extends Loader implements Runnable {
     private void acceptOneBuffBytes() {
         byte[] buf = new byte[BUFFER_SIZE];
         int length;
-        logger.debug("Accepting {}", offset);
+//        logger.debug("Accepting {}", offset);
         try {
             length = in.read(buf);
             offset += length;

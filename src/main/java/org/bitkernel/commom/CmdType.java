@@ -21,6 +21,7 @@ public enum CmdType {
     FILE_TRANSFER("-ft", "file transfer", "-ft@{name}@{file}"),
     RECEPTION_REQ_LIST("-rrl", "List of file reception requests", "-rrl"),
     ACCEPT("-a", "accept file", "-a@{reception list number}"),
+    PAUSE("-p", "pause of receiving file", "-p@{reception list number}"),
     REFUSE("-r", "refuse file reception request", "-r@{reception list number}"),
     ACCEPTED_FILES("-af", "accepted file list", "-af"),
     MAX_FILE_SIZE("-mfs", "set the maximum file size allowed", "-mfs@{fileSize}"),

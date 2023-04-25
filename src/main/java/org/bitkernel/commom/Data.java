@@ -56,6 +56,7 @@ public class Data {
                 case MAX_FILE_SIZE:
                 case REFUSE:
                 case ACCEPT:
+                case PAUSE:
                     return isNumeric(to) && msg.equals(nullStr);
                 case DISCONNECT:
                     return !to.equals(nullStr) && msg.equals(nullStr);

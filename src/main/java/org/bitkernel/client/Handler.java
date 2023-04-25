@@ -97,6 +97,9 @@ public class Handler {
             case REFUSE:
                 refuseFileTranReq(Integer.parseInt(data.getTo()));
                 break;
+            case PAUSE:
+                pauseFileTranReq(Integer.parseInt(data.getTo()));
+                break;
             case ACCEPTED_FILES:
                 Printer.displayLn(getAllFileNameString(dir));
                 break;
@@ -126,6 +129,18 @@ public class Handler {
         Printer.displayLn("Refuse to accept the file [%s] from [%s]",
                 downLoader.getFrom(), downLoader.getFileName());
         removeFileTransferReq(idx - 1);
+    }
+
+    private void pauseFileTranReq(@NotNull int idx) {
+        if (idx > fileTransferReqList.size() || idx <= 0) {
+            Printer.displayLn("Wrong index of transfer list, valid range is %d - %d",
+                    1, fileTransferReqList.size());
+            return;
+        }
+        DownLoader downLoader = fileTransferReqList.get(idx - 1);
+        downLoader.pause();
+        Printer.displayLn("Pause to accept the file [%s] from [%s]",
+                downLoader.getFrom(), downLoader.getFileName());
     }
 
     private void showWaitList() {
