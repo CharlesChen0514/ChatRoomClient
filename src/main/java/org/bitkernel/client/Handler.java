@@ -88,11 +88,14 @@ public class Handler {
             case FILE_TRANSFER:
                 fileTransferReq(data);
                 break;
-            case WAIT_LIST:
+            case TRANSFER_LIST:
                 showWaitList();
                 break;
             case ACCEPT:
                 acceptFile(Integer.parseInt(data.getTo()));
+                break;
+            case REFUSE:
+                refuseFileTranReq(Integer.parseInt(data.getTo()));
                 break;
             case ACCEPTED_FILES:
                 Printer.displayLn(getAllFileNameString(dir));
@@ -110,6 +113,19 @@ public class Handler {
             default:
                 Printer.displayLn("Invalid selection, please re-enter");
         }
+    }
+
+    private void refuseFileTranReq(@NotNull int idx) {
+        if (idx > fileTransferReqList.size() || idx <= 0) {
+            Printer.displayLn("Wrong index of transfer list, valid range is %d - %d",
+                    1, fileTransferReqList.size());
+            return;
+        }
+        DownLoader downLoader = fileTransferReqList.get(idx - 1);
+        downLoader.refuse();
+        Printer.displayLn("Refuse to accept the file [%s] from [%s]",
+                downLoader.getFrom(), downLoader.getFileName());
+        removeFileTransferReq(idx - 1);
     }
 
     private void showWaitList() {
@@ -136,13 +152,13 @@ public class Handler {
         removeList.forEach(TcpListener::removeFileTransferReq);
     }
 
-    private void acceptFile(int waitListNumber) {
-        if (waitListNumber > fileTransferReqList.size() || waitListNumber <= 0) {
-            Printer.displayLn("Wrong index of waiting list, valid range is %d - %d",
+    private void acceptFile(int index) {
+        if (index > fileTransferReqList.size() || index <= 0) {
+            Printer.displayLn("Wrong index of transfer list, valid range is %d - %d",
                     1, fileTransferReqList.size());
             return;
         }
-        DownLoader downLoader = fileTransferReqList.get(waitListNumber - 1);
+        DownLoader downLoader = fileTransferReqList.get(index - 1);
         downLoader.start();
     }
 

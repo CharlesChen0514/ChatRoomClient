@@ -37,7 +37,8 @@ public class UpLoader extends Loader implements Runnable {
         watch.start();
         try {
             DataInputStream fis = new DataInputStream(new BufferedInputStream(Files.newInputStream(Paths.get(filePath))));
-            out.writeUTF(file.getName());
+            fileName = file.getName();
+            out.writeUTF(fileName);
             out.writeUTF(String.valueOf(file.length()));
             out.flush();
 
@@ -49,7 +50,7 @@ public class UpLoader extends Loader implements Runnable {
             }
             Printer.displayLn("Add to recipient's waiting list");
 
-            logger.debug("Start push file [{}] to [{}]", file.getName(), toUser.getName());
+            logger.debug("Start push file [{}] to [{}]", fileName, toUser.getName());
             byte[] buf = new byte[BUFFER_SIZE];
             while (true) {
                 int read = fis.read(buf);
@@ -60,19 +61,27 @@ public class UpLoader extends Loader implements Runnable {
             }
             out.flush();
             logger.debug("File upload complete, waiting for reception");
+            endTime = getTime();
+            watch.stop();
 
             // waiting for receiver reception done
-            conn.getDin().readUTF();
-            logger.debug("File recipient received completed");
+            rsp = conn.getDin().readUTF();
+            if (rsp.equals("Done")) {
+                logger.debug("File recipient received completed");
+                logger.debug("Push file {} success", filePath);
+            } else {
+                Printer.displayLn("%s refuse to accept the file %s", toUser.getName(), fileName);
+                logger.debug("{} refuse to accept the file {}", toUser.getName(), fileName);
+                flag = false;
+            }
             fis.close();
         } catch (IOException e) {
-            throw new RuntimeException(e);
+            Printer.displayLn("%s refuse to accept the file %s", toUser.getName(), fileName);
+            logger.debug("{} refuse to accept the file {}", toUser.getName(), fileName);
+            flag = false;
         }
 
-        watch.stop();
-        endTime = getTime();
         conn.close();
-        logger.debug("Push file {} success", filePath);
     }
 
     private void outputInfo() {

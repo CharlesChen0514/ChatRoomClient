@@ -40,7 +40,7 @@ public class Data {
             }
             switch (type) {
                 case INFO:
-                case WAIT_LIST:
+                case TRANSFER_LIST:
                 case FRIENDS:
                 case EXIT:
                 case HELP:
@@ -54,6 +54,7 @@ public class Data {
                 case FILE_TRANSFER:
                     return !to.equals(nullStr) && !msg.equals(nullStr);
                 case MAX_FILE_SIZE:
+                case REFUSE:
                 case ACCEPT:
                     return isNumeric(to) && msg.equals(nullStr);
                 case DISCONNECT:

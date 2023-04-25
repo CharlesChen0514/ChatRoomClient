@@ -61,9 +61,14 @@ public class DownLoader extends Loader implements Runnable {
                     break;
                 case DONE:
                     flag = true;
+                    done();
                     break;
                 case PAUSE:
                 case READY:
+                    break;
+                case REFUSE:
+                    flag = true;
+                    close("Refuse");
                     break;
                 default:
             }
@@ -71,8 +76,11 @@ public class DownLoader extends Loader implements Runnable {
                 break;
             }
         }
+    }
+
+    private void done() {
         logger.debug("Received all byte of file {} from {}", fileName, from);
-        close();
+        close("Done");
         endTime = getTime();
         watch.stop();
         outputInfo();
@@ -88,7 +96,7 @@ public class DownLoader extends Loader implements Runnable {
             offset += length;
             fos.write(buf, 0, length);
             if (offset == fileSize) {
-                logger.debug("fileSize break");
+                logger.debug("Reach file size break");
                 status = Status.DONE;
             }
         } catch (IOException e) {
@@ -140,11 +148,15 @@ public class DownLoader extends Loader implements Runnable {
         }
     }
 
-    private void close() {
+    public void refuse() {
+        status = Status.REFUSE;
+    }
+
+    private void close(@NotNull String msg) {
         try {
             fos.flush();
             fos.close();
-            out.writeUTF("Done");
+            out.writeUTF(msg);
             out.flush();
             conn.close();
             logger.debug("Close all relevant resource");
@@ -170,5 +182,6 @@ enum Status {
     READY,
     PAUSE,
     RUNNING,
+    REFUSE,
     DONE
 }
