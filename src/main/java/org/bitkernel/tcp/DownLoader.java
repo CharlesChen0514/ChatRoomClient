@@ -18,6 +18,7 @@ public class DownLoader extends Loader implements Runnable {
     @Getter
     private final String from;
     private String outputPath;
+    @Getter
     private Status status = Status.READY;
     private FileOutputStream fos;
 

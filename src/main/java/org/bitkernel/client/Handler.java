@@ -151,9 +151,9 @@ public class Handler {
         }
         for (int i = 0; i < fileTransferReqList.size(); i++) {
             DownLoader downLoader = fileTransferReqList.get(i);
-            System.out.printf("\t%d) from: %s, file name: %s, file size: %s, progress: %.2f%%%n",
+            System.out.printf("\t%d) from: %s, file name: %s, file size: %s, progress: %.2f%%, status: %s%n",
                     i + 1, downLoader.getFrom(), downLoader.getFileName(),
-                    downLoader.getFileSize(), downLoader.progressPercentage());
+                    downLoader.getFileSize(), downLoader.progressPercentage(), downLoader.getStatus());
         }
     }
 

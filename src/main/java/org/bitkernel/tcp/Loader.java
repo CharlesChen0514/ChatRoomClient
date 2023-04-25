@@ -9,7 +9,7 @@ import java.io.DataInputStream;
 import java.io.DataOutputStream;
 
 public class Loader {
-    protected static final int BUFFER_SIZE = 1024;
+    protected static final int BUFFER_SIZE = 256;
     protected final TcpConn conn;
     protected final StopWatch watch = new StopWatch();
     @Getter
@@ -21,6 +21,7 @@ public class Loader {
     protected String endTime;
     protected String startTime;
     protected long offset;
+    protected ConsoleProgressBarDemo cpb = new ConsoleProgressBarDemo(50, '#');
 
     public Loader(@NotNull TcpConn conn) {
         this.conn = conn;
