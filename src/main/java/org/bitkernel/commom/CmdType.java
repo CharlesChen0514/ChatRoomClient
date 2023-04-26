@@ -32,6 +32,7 @@ public enum CmdType {
     public final String description;
     public final String example;
     public static final Map<String, CmdType> cmdToEnumMap;
+    /** Stored command type for presentation to users */
     public static final Set<CmdType> menu;
 
     static {
