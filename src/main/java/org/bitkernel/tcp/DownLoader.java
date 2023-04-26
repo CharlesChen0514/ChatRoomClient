@@ -14,7 +14,8 @@ import static org.bitkernel.commom.Printer.getTime;
 
 @Slf4j
 public class DownLoader extends Loader implements Runnable {
-    public static long MAX_FILE_SIZE = 500L * 1024 * 1024 * 10;
+    /** Maximum file size allowed to receive */
+    public static long MAX_FILE_SIZE = 500L * 1024 * 1024;
     @Getter
     private final String from;
     private String outputPath;
@@ -28,6 +29,10 @@ public class DownLoader extends Loader implements Runnable {
         this.from = from;
     }
 
+    /**
+     * Initialize the download file task, obtain information such as
+     * file name and file size from the sender.
+     */
     public void init() {
         logger.debug("Initialize {} file transfer request from {}", fileName, from);
         try {
@@ -89,6 +94,9 @@ public class DownLoader extends Loader implements Runnable {
         logger.debug("Accept file {} from {} success", fileName, from);
     }
 
+    /**
+     * Read a file byte stream of one buffer size.
+     */
     private void acceptOneBuffBytes() {
         watch.start();
         byte[] buf = new byte[BUFFER_SIZE];
@@ -107,6 +115,9 @@ public class DownLoader extends Loader implements Runnable {
         watch.stop();
     }
 
+    /**
+     * Initiate file download by modifying {@link #status}
+     */
     public void start() {
         switch (status) {
             case READY:
@@ -130,6 +141,9 @@ public class DownLoader extends Loader implements Runnable {
         }
     }
 
+    /**
+     * Pause file download by modifying {@link #status}
+     */
     public void pause() {
         switch (status) {
             case READY:
@@ -150,6 +164,9 @@ public class DownLoader extends Loader implements Runnable {
         }
     }
 
+    /**
+     * Refuse file download by modifying {@link #status}
+     */
     public void refuse() {
         status = Status.REFUSE;
     }
