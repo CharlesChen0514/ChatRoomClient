@@ -45,25 +45,26 @@ public class Client {
         logger.debug("Start chat room client");
         Client c = new Client();
         c.login();
-        c.startLocalServer();
+        c.startLocalServices();
         c.chat();
     }
 
+    /**
+     * user input information include {name, udp port, tcp port},
+     * to create user object and file directory.
+     */
     private void login() {
         logger.debug("Start input user message");
         Printer.displayLn("Welcome to chat room, please login");
         Printer.display("Input username: ");
         String name = in.next();
-//        String name = "chen";
 
         while (true) {
             // Ip defaults to local host
             Printer.display("Input UDP port: ");
             int udpPort = in.nextInt();
-//            int udpPort = 9996;
             Printer.display("Input Tcp listen port: ");
             int listenerPort = in.nextInt();
-//            int listenerPort = 9997;
 
             if (!Udp.checkPort(udpPort) || !TcpConn.checkPort(listenerPort)) {
                 Printer.displayLn("Input port unavailable, please re-entered");
@@ -85,6 +86,10 @@ public class Client {
         logger.debug("End input user message");
     }
 
+    /**
+     * Loop to listen for user input and hand over the request to the
+     * {@link Handler} for processing.
+     */
     private void chat() {
         System.out.println("Command guide:");
         menu.forEach(System.out::println);
@@ -102,11 +107,21 @@ public class Client {
         logger.info("Exit chat menu");
     }
 
+    /**
+     * Check the validity of user input command, which includes the header [user name].
+     * @param dataStr data format string, e.g. chen@pm@lele@nihao
+     * @return valid or not
+     */
     private boolean check(@NotNull String dataStr) {
         return count(dataStr, sym.toCharArray()[0]) == 3 && checkDataStr(dataStr);
     }
 
-    private void startLocalServer() {
+    /**
+     * Start the local services include TCP listening thread and
+     * heartbeat thread, and initialize the request processing
+     * class {@link Handler}.
+     */
+    private void startLocalServices() {
         Thread t1 = new Thread(new TcpListener(user.getTcpListenPort()));
         Thread t2 = new Thread(new HeartBeatDetector());
         executorService.execute(t1);
