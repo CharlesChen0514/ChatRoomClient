@@ -2,7 +2,6 @@ package org.bitkernel.tcp;
 
 import com.sun.istack.internal.NotNull;
 import lombok.Getter;
-import org.bitkernel.commom.ConsoleProgressBarDemo;
 import org.springframework.util.StopWatch;
 
 import java.io.DataInputStream;
