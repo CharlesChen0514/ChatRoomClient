@@ -7,6 +7,9 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Formatter;
 
+/**
+ * Output information to the console and add time header.
+ */
 @Slf4j
 public class Printer {
     @NotNull
