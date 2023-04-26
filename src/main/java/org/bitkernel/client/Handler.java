@@ -46,18 +46,20 @@ public class Handler {
             }
             logger.debug("UDP receiver ended successfully");
         }
-    }
 
-    private void response(@NotNull String fDataStr) {
-        Data data = parse(fDataStr);
-        switch (data.getCmdType()) {
-            case PRIVATE_MSG:
-                Printer.displayLn("%s say: %s", data.getFrom(), data.getMsg());
-                break;
-            case FILE_TRANSFER:
-                break;
-            default:
-                System.out.println("Invalid selection, please re-enter");
+        /**
+         * Response to received messages
+         * @param fDataStr formalized data string, e.g. chen@-i@null@null
+         */
+        private void response(@NotNull String fDataStr) {
+            Data data = parse(fDataStr);
+            switch (data.getCmdType()) {
+                case PRIVATE_MSG:
+                    Printer.displayLn("%s say: %s", data.getFrom(), data.getMsg());
+                    break;
+                default:
+                    System.out.println("Invalid selection, please re-enter");
+            }
         }
     }
 
@@ -66,6 +68,10 @@ public class Handler {
         return new LinkedHashSet<>(userMap.values());
     }
 
+    /**
+     * Parse user input commands and make corresponding requests.
+     * @param fDataStr formalized data string, e.g. chen@-i@null@null
+     */
     public void request(@NotNull String fDataStr) {
         Data data = parse(fDataStr);
         logger.debug("Client make request: {}", data);
@@ -118,6 +124,10 @@ public class Handler {
         }
     }
 
+    /**
+     * Reject the file transfer request
+     * @param idx reception list number
+     */
     private void refuseFileTranReq(@NotNull int idx) {
         if (idx > fileTransferReqList.size() || idx <= 0) {
             Printer.displayLn("Wrong index of transfer list, valid range is %d - %d",
@@ -131,6 +141,10 @@ public class Handler {
         removeFileTransferReq(idx - 1);
     }
 
+    /**
+     * Pause the file transfer request
+     * @param idx reception list number
+     */
     private void pauseFileTranReq(@NotNull int idx) {
         if (idx > fileTransferReqList.size() || idx <= 0) {
             Printer.displayLn("Wrong index of transfer list, valid range is %d - %d",
@@ -143,6 +157,9 @@ public class Handler {
                 downLoader.getFrom(), downLoader.getFileName());
     }
 
+    /**
+     * Show a list of all file transfer requests.
+     */
     private void showWaitList() {
         cleanWaitList();
         if (fileTransferReqList.isEmpty()) {
@@ -157,6 +174,9 @@ public class Handler {
         }
     }
 
+    /**
+     * Scan the file transfer list and clean up completed tasks.
+     */
     private void cleanWaitList() {
         List<Integer> removeList = new ArrayList<>();
         for (int i = 0; i < fileTransferReqList.size(); i++) {
@@ -167,16 +187,23 @@ public class Handler {
         removeList.forEach(TcpListener::removeFileTransferReq);
     }
 
-    private void acceptFile(int index) {
-        if (index > fileTransferReqList.size() || index <= 0) {
+    /**
+     * Accept a file transfer request.
+     * @param idx reception list number
+     */
+    private void acceptFile(int idx) {
+        if (idx > fileTransferReqList.size() || idx <= 0) {
             Printer.displayLn("Wrong index of transfer list, valid range is %d - %d",
                     1, fileTransferReqList.size());
             return;
         }
-        DownLoader downLoader = fileTransferReqList.get(index - 1);
+        DownLoader downLoader = fileTransferReqList.get(idx - 1);
         downLoader.start();
     }
 
+    /**
+     * Initiate a file transfer request and start a file transfer thread.
+     */
     private void fileTransferReq(@NotNull Data data) {
         String from = data.getFrom();
         String to = data.getTo();
@@ -205,6 +232,9 @@ public class Handler {
         }
     }
 
+    /**
+     * Initiate a private message
+     */
     private void pmReq(@NotNull Data data) {
         String to = data.getTo();
         if (!isFriend(to)) {
@@ -223,6 +253,9 @@ public class Handler {
         System.exit(-1);
     }
 
+    /**
+     * Initiate disconnection request to delete a friend.
+     */
     private void disconnectReq(@NotNull Data data) {
         String to = data.getTo();
         if (remove(to)) {
@@ -232,6 +265,9 @@ public class Handler {
         }
     }
 
+    /**
+     * Initiate connection request to add a friend.
+     */
     private void connectReq(@NotNull Data data) {
         String ip;
         int port;
