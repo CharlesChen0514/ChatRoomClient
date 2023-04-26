@@ -22,9 +22,16 @@ public class Data {
     @Getter
     private String msg;
     private static int FIELD_LEN = 4;
+    /** Command connector */
     public final static String sym = "@";
+    /** String for data filing */
     private final static String nullStr = "null";
 
+    /**
+     * Check validity based on command type.
+     * @param dataStr Raw command string without data filing
+     * @return valid or not
+     */
     public static boolean checkDataStr(@NotNull String dataStr) {
         // dataStr: from@cmd@to@msg
         String[] split = dataStr.split(sym);
