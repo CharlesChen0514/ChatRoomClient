@@ -20,8 +20,8 @@ public class Loader {
     protected DataInputStream in;
     protected String endTime;
     protected String startTime;
+    /** Number of bytes transferred */
     protected long offset;
-    protected ConsoleProgressBarDemo cpb = new ConsoleProgressBarDemo(50, '#');
 
     public Loader(@NotNull TcpConn conn) {
         this.conn = conn;

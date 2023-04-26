@@ -9,7 +9,7 @@ import java.util.Set;
 
 import static org.bitkernel.client.Client.isRunning;
 import static org.bitkernel.tcp.TcpListener.connMap;
-import static org.bitkernel.tcp.TcpListener.remove;
+import static org.bitkernel.tcp.TcpListener.removeUser;
 
 @Slf4j
 public class HeartBeatDetector implements Runnable {
@@ -32,7 +32,7 @@ public class HeartBeatDetector implements Runnable {
             }
         });
         for (String u : offlineUsers) {
-            remove(u);
+            removeUser(u);
             logger.debug("{} disconnected", u);
             Printer.displayLn("%s offline", u);
         }

@@ -258,7 +258,7 @@ public class Handler {
      */
     private void disconnectReq(@NotNull Data data) {
         String to = data.getTo();
-        if (remove(to)) {
+        if (removeUser(to)) {
             Printer.displayLn("Disconnected to " + to);
         } else {
             Printer.displayLn(String.format("%s is not your friend", to));
@@ -301,7 +301,7 @@ public class Handler {
             logger.debug("Send your own information success");
             String userString = conn.getDin().readUTF();
             logger.debug("Receive friend information success");
-            add(userString, conn);
+            addUser(userString, conn);
         } catch (IOException e) {
             String error = String.format("Connect to %s:%d failed", ip, port);
             logger.error(error);

@@ -21,17 +21,11 @@ import static org.bitkernel.tcp.DownLoader.MAX_FILE_SIZE;
 
 @Slf4j
 public class TcpListener implements Runnable {
-    /**
-     * name -> user
-     */
+    /** name -> user */
     public static final Map<String, User> userMap = new ConcurrentHashMap<>();
-    /**
-     * name -> tcp connection
-     */
+    /** name -> tcp connection */
     public static final Map<String, TcpConn> connMap = new ConcurrentHashMap<>();
-    /**
-     * tcp Socket address -> user
-     */
+    /** tcp Socket address -> user */
     public static final Map<String, User> socAddrMap = new ConcurrentHashMap<>();
     public static final List<DownLoader> fileTransferReqList = new ArrayList<>();
     public int port;
@@ -71,7 +65,6 @@ public class TcpListener implements Runnable {
                         newConnection(conn);
                         break;
                     case FILE_TRANSFER:
-//                        conn.acceptFile(data.getFrom());
                         addFileTransferReq(conn, data.getFrom());
                         break;
                     default:
@@ -84,7 +77,7 @@ public class TcpListener implements Runnable {
     }
 
     private static synchronized void addFileTransferReq(@NotNull TcpConn conn,
-                                                 @NotNull String from) {
+                                                        @NotNull String from) {
         DownLoader downLoader = new DownLoader(conn, from);
         downLoader.init();
         if (downLoader.isExceedMaximumSize()) {
@@ -117,11 +110,11 @@ public class TcpListener implements Runnable {
         logger.debug("Send your own information success");
         String userString = conn.getDin().readUTF();
         logger.debug("Receive friend information success");
-        add(userString, conn);
+        addUser(userString, conn);
     }
 
-    public static void add(@NotNull String userString,
-                           @NotNull TcpConn conn) {
+    public static void addUser(@NotNull String userString,
+                               @NotNull TcpConn conn) {
         conn.startHeartBeat();
         User from = User.parse(userString);
         conn.setTo(from);
@@ -131,6 +124,9 @@ public class TcpListener implements Runnable {
         Printer.displayLn("Connected to: " + from.detailed());
     }
 
+    /**
+     * @return friend information string.
+     */
     @NotNull
     public static String getFriendString() {
         Set<String> fs = getFriends();
@@ -157,7 +153,7 @@ public class TcpListener implements Runnable {
         return userMap.containsKey(str) || socAddrMap.containsKey(str);
     }
 
-    public static boolean remove(@NotNull String name) {
+    public static boolean removeUser(@NotNull String name) {
         if (!isFriend(name)) {
             return false;
         }
