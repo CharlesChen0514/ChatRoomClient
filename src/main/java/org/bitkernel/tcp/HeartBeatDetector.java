@@ -14,11 +14,16 @@ import static org.bitkernel.tcp.TcpListener.remove;
 @Slf4j
 public class HeartBeatDetector implements Runnable {
 
+    /** Heartbeat detection time interval (ms) */
     public static final int TIME_INTERVAL = 1000;
-//    public static final int WAIT_INTERVAL = 100;
+    /** Heartbeat packet string */
     public static final String HEART_BEAT = "Heart beat\n";
+    /** Heartbeat packet response string */
     public static final String ALIVE = "Alive\n";
 
+    /**
+     * Clean up unresponsive TCP connections.
+     */
     private void cleanConnection() {
         Set<String> offlineUsers = new HashSet<>();
         connMap.forEach((name, conn) -> {
@@ -33,6 +38,10 @@ public class HeartBeatDetector implements Runnable {
         }
     }
 
+    /**
+     * Determine whether the connection is online.
+     * @return online or not
+     */
     private boolean isOnline(@NotNull TcpConn conn) {
         try {
             conn.getDout().writeUTF(HEART_BEAT);
@@ -50,12 +59,9 @@ public class HeartBeatDetector implements Runnable {
     @Override
     public void run() {
         logger.debug("Heart beat detector started successfully");
-        int testTime = 0;
         while (isRunning) {
             try {
                 Thread.sleep(TIME_INTERVAL);
-                testTime += 1;
-//                logger.debug("Heart beat detection {} test", testTime);
                 cleanConnection();
             } catch (InterruptedException e) {
                 logger.error("Heart beat detector error");
