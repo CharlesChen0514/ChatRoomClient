@@ -21,6 +21,7 @@ public class User {
     private int udpPort;
     @Getter
     private int tcpListenPort;
+    /** Not working yet, reserved field */
     private String uuid;
 
     public User(@NotNull String name, @NotNull String ip,
@@ -47,6 +48,9 @@ public class User {
                 String.valueOf(tcpListenPort), uuid, " ");
     }
 
+    /**
+     * @return Detail user information
+     */
     @NotNull
     public String detailed() {
         return String.format("name: %s, ip: %s, udp port: %s, tcp listen port: %s, uuid: %s",
